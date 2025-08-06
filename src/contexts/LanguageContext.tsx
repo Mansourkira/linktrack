@@ -26,14 +26,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [lang]);
 
   function t(key: string) {
-    return (
-      key
-        .split(".")
-        .reduce(
-          (obj, k) => obj?.[k],
-          translations[lang as keyof typeof translations] as Record<string, any>
-        ) || key
-    );
+    const result = key
+      .split(".")
+      .reduce(
+        (obj: unknown, k: string) => (obj as Record<string, unknown>)?.[k],
+        translations[lang as keyof typeof translations] as Record<
+          string,
+          unknown
+        >
+      );
+    return typeof result === "string" ? result : key;
   }
 
   return (
