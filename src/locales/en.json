@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "hero": {
+    "title": "Your Ultimate Link Tracking Solution",
+    "desc": "Shorten links, track analytics, and manage your URLs—all in one open-source platform.",
+    "cta": "Get Started Free"
+  },
+  "features": {
+    "custom_domains": "Custom Domains",
+    "analytics": "Analytics",
+    "privacy": "Privacy",
+    "team": "Team Collaboration"
+  }
+}

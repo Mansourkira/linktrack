@@ -1,0 +1,17 @@
+{
+  "nav": {
+    "login": "Connexion",
+    "signup": "Créer un compte"
+  },
+  "hero": {
+    "title": "Votre solution ultime de suivi de liens",
+    "desc": "Raccourcissez vos liens, suivez vos statistiques, et gérez vos URLs—tout en open source.",
+    "cta": "Commencer gratuitement"
+  },
+  "features": {
+    "custom_domains": "Domaines personnalisés",
+    "analytics": "Statistiques",
+    "privacy": "Confidentialité",
+    "team": "Collaboration d'équipe"
+  }
+}
