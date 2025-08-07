@@ -12,7 +12,7 @@ export const ComingSoon = () => {
             Coming Soon
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            We're building something amazing. Stay tuned for the launch of our link tracking platform.
+            We&apos;re building something amazing. Stay tuned for the launch of our link tracking platform.
           </p>
         </div>
         
