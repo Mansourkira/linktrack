@@ -4,18 +4,8 @@ import * as React from "react"
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-react'
-import { Navbar } from "./Navbar"
-
-const menuItems = [
-    { name: 'Features', href: '#' },
-    { name: 'Solution', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'About', href: '#' },
-]
 
 export const HeroSection = () => {
-    const [menuState, setMenuState] = React.useState(false)
     return (
         <div>
          

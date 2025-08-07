@@ -8,7 +8,7 @@ const defaultLang = "en";
 
 const LanguageContext = createContext({
   lang: defaultLang,
-  setLang: (lang: string) => {},
+  setLang: (_lang: string) => {},
   t: (key: string) => key,
 });
 
