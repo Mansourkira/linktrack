@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import "@/app/globals.css";
-import { Header } from "@/components/ui/navbar";
+import { Navbar } from "@/components/Navbar";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "next-themes";
 
@@ -14,7 +14,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LanguageProvider>
-            <Header />
+            <Navbar />
             <main>{children}</main>
           </LanguageProvider>
         </ThemeProvider>
