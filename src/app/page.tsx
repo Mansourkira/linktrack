@@ -1,13 +1,18 @@
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { Header } from "@/components/ui/navbar";
+import { HeroSection } from "@/components/hero-section-9";
+import { ComingSoon } from "@/components/ComingSoon";
+import { config } from "@/lib/config";
 
 export default function Home() {
+  // Show coming soon page if in production and flag is enabled
+  if (config.isProduction && config.features.showComingSoon) {
+    return <ComingSoon />;
+  }
+
   return (
     <div className="font-sans min-h-screen">
-      <Header />
-      <div className="pt-20 px-4 sm:px-6 lg:px-8">
-        <ThemeToggle />
-      </div>
+      <HeroSection />
     </div>
   );
 }
