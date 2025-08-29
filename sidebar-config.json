@@ -1,0 +1,76 @@
+{
+    "company": {
+        "name": "LinkTrack",
+        "logo": "IconInnerShadowTop"
+    },
+    "navMain": [
+        {
+            "title": "Dashboard",
+            "url": "/dashboard",
+            "icon": "IconDashboard"
+        },
+        {
+            "title": "Links",
+            "url": "/dashboard/links",
+            "icon": "IconListDetails"
+        },
+        {
+            "title": "Analytics",
+            "url": "/dashboard",
+            "icon": "IconChartBar"
+        },
+        {
+            "title": "Domains",
+            "url": "/dashboard",
+            "icon": "IconFolder"
+        }
+    ],
+    "navClouds": [
+        {
+            "title": "Capture",
+            "icon": "IconCamera",
+            "isActive": true,
+            "url": "/dashboard",
+            "items": [
+                {
+                    "title": "Active Proposals",
+                    "url": "/dashboard"
+                },
+                {
+                    "title": "Archived",
+                    "url": "/dashboard"
+                }
+            ]
+        },
+        {
+            "title": "Proposal",
+            "icon": "IconFileDescription",
+            "url": "/dashboard",
+            "items": [
+                {
+                    "title": "Active Proposals",
+                    "url": "/dashboard"
+                },
+                {
+                    "title": "Archived",
+                    "url": "/dashboard"
+                }
+            ]
+        },
+        {
+            "title": "Prompts",
+            "icon": "IconFileAi",
+            "url": "/dashboard",
+            "items": [
+                {
+                    "title": "Active Proposals",
+                    "url": "/dashboard"
+                },
+                {
+                    "title": "Archived",
+                    "url": "/dashboard"
+                }
+            ]
+        }
+    ]
+}
