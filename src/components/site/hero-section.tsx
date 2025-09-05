@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, Play, ExternalLink, Instagram, Twitter, Youtube } from "lucide-react"
+import { ArrowRight, Play, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -29,13 +29,13 @@ export function HeroSection() {
             className="mb-6"
           >
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
-              Beautiful link pages
+              Advanced link analytics
             </Badge>
           </motion.div>
 
           {/* Headline */}
           <AnimatedText
-            text="Turn your links into a delightful, branded page."
+            text="Short links with powerful analytics and custom domains."
             className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6"
             mode="per-line"
             delay={0.2}
@@ -48,7 +48,7 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0"
           >
-            Build, customize, and share your bio link in minutes — with analytics, themes, and custom domains.
+            Create branded short links, track clicks with detailed analytics, and use your own custom domain for maximum impact.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -82,64 +82,83 @@ export function HeroSection() {
         >
           <Card className="w-full max-w-sm bg-card/50 backdrop-blur-sm border shadow-2xl">
             <CardContent className="p-6">
-              {/* Profile Section */}
+              {/* Analytics Header */}
               <div className="text-center mb-6">
-                <Avatar className="h-20 w-20 mx-auto mb-4">
-                  <AvatarImage src="/professional-headshot.png" alt="Profile" />
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <h3 className="font-semibold text-lg">Jane Doe</h3>
-                <p className="text-sm text-muted-foreground">Content Creator & Designer</p>
+                <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-lg">Link Analytics</h3>
+                <p className="text-sm text-muted-foreground">Real-time click tracking</p>
               </div>
 
-              {/* Links */}
+              {/* Analytics Stats */}
               <div className="space-y-3">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border cursor-pointer transition-colors hover:bg-background/80"
+                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border"
                 >
-                  <div className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                    <Instagram className="h-4 w-4 text-white" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">L</span>
+                    </div>
+                    <span className="font-medium text-sm">linktrack.app/leo</span>
                   </div>
-                  <span className="font-medium flex-1">Instagram</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-right">
+                    <div className="font-bold text-lg">2,847</div>
+                    <div className="text-xs text-muted-foreground">clicks</div>
+                  </div>
                 </motion.div>
 
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border cursor-pointer transition-colors hover:bg-background/80"
+                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border"
                 >
-                  <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                    <Twitter className="h-4 w-4 text-white" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">C</span>
+                    </div>
+                    <span className="font-medium text-sm">linktrack.app/chatgpt</span>
                   </div>
-                  <span className="font-medium flex-1">Twitter</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-right">
+                    <div className="font-bold text-lg">1,234</div>
+                    <div className="text-xs text-muted-foreground">clicks</div>
+                  </div>
                 </motion.div>
 
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border cursor-pointer transition-colors hover:bg-background/80"
+                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border"
                 >
-                  <div className="h-8 w-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center">
-                    <Youtube className="h-4 w-4 text-white" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">G</span>
+                    </div>
+                    <span className="font-medium text-sm">linktrack.app/ganesha</span>
                   </div>
-                  <span className="font-medium flex-1">YouTube Channel</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-right">
+                    <div className="font-bold text-lg">856</div>
+                    <div className="text-xs text-muted-foreground">clicks</div>
+                  </div>
                 </motion.div>
 
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border cursor-pointer transition-colors hover:bg-background/80"
+                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border"
                 >
-                  <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                    P
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">D</span>
+                    </div>
+                    <span className="font-medium text-sm">linktrack.app/dT8XrA</span>
                   </div>
-                  <span className="font-medium flex-1">Portfolio</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-right">
+                    <div className="font-bold text-lg">432</div>
+                    <div className="text-xs text-muted-foreground">clicks</div>
+                  </div>
                 </motion.div>
               </div>
             </CardContent>

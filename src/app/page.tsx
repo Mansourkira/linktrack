@@ -21,7 +21,7 @@ export default function HomePage() {
           <FeaturesSection />
           <HowItWorksSection />
           <PricingSection />
-          <TestimonialsSection />
+          {/*  <TestimonialsSection /> */}
           <FAQSection />
         </main>
         <Footer />

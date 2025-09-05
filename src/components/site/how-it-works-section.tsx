@@ -8,17 +8,17 @@ export function HowItWorksSection() {
     {
       icon: Link,
       title: "Paste Your Long URL",
-      description: "Simply paste any long URL into our shortener tool",
+      description: "Simply paste any long URL into our shortener tool and customize your short code",
     },
     {
       icon: ArrowRight,
       title: "Get Your Short Link",
-      description: "Instantly receive a clean, branded short link",
+      description: "Instantly receive a clean, branded short link with your custom domain",
     },
     {
       icon: BarChart3,
       title: "Track Performance",
-      description: "Monitor clicks, locations, and engagement in real-time",
+      description: "Monitor clicks, locations, devices, and referrers with detailed analytics",
     },
   ]
 
