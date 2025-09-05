@@ -1,14 +1,14 @@
-"use client"
-
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { CrudCard } from "@/components/ui/crud-card"
 import { IconPlus, IconLink, IconChartBar, IconSettings } from "@tabler/icons-react"
 import Link from "next/link"
+import { requireUser } from "@/lib/auth/server"
 
-export default function Page() {
+export default async function Page() {
+  const user = await requireUser();
   return (
-    <div className="space-y-6 p-6 w-full">
+    <div className="space-y-6 w-full">
       {/*   <SectionCards /> */}
 
       {/* Quick Actions */}
@@ -37,21 +37,25 @@ export default function Page() {
             </div>
           </Link>
 
-          <div className="flex flex-col items-center p-6 border rounded-lg hover:bg-accent hover:border-accent-foreground transition-colors cursor-pointer">
-            <IconChartBar className="h-8 w-8 text-primary mb-2" />
-            <h3 className="font-medium">Analytics</h3>
-            <p className="text-sm text-muted-foreground text-center">
-              Track link performance
-            </p>
-          </div>
+          <Link href="/dashboard/analytics">
+            <div className="flex flex-col items-center p-6 border rounded-lg hover:bg-accent hover:border-accent-foreground transition-colors cursor-pointer">
+              <IconChartBar className="h-8 w-8 text-primary mb-2" />
+              <h3 className="font-medium">Analytics</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Track link performance
+              </p>
+            </div>
+          </Link>
 
-          <div className="flex flex-col items-center p-6 border rounded-lg hover:bg-accent hover:border-accent-foreground transition-colors cursor-pointer">
-            <IconSettings className="h-8 w-8 text-primary mb-2" />
-            <h3 className="font-medium">Settings</h3>
-            <p className="text-sm text-muted-foreground text-center">
-              Configure your account
-            </p>
-          </div>
+          <Link href="/dashboard/domains">
+            <div className="flex flex-col items-center p-6 border rounded-lg hover:bg-accent hover:border-accent-foreground transition-colors cursor-pointer">
+              <IconSettings className="h-8 w-8 text-primary mb-2" />
+              <h3 className="font-medium">Domains</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Manage your domains
+              </p>
+            </div>
+          </Link>
         </div>
       </CrudCard>
 
