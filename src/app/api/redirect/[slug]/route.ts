@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabaseClient'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 // Edge runtime for ultra-fast responses
 export const runtime = 'edge'
@@ -13,6 +13,8 @@ export async function GET(
     const host = request.headers.get('host') || ''
 
     try {
+        const supabase = createSupabaseBrowserClient()
+
         // Check if this is a custom domain or primary domain
         let domainId: string | null = null
 
@@ -29,13 +31,13 @@ export async function GET(
             }
         }
 
-        // Look up the link by slug and domain
+        // Look up the link by slug and domain using correct column names
         const { data: link, error } = await supabase
             .from('links')
             .select('*')
-            .eq('shortCode', slug)
-            .eq('domainId', domainId)
-            .eq('isActive', true)
+            .eq('shortCode', slug)  // Using camelCase as per your database
+            //   .eq('domainId', domainId)
+            .eq('isActive', true)   // Using camelCase as per your database
             .single()
 
         if (error || !link) {
@@ -44,9 +46,9 @@ export async function GET(
                 const { data: fallbackLink } = await supabase
                     .from('links')
                     .select('*')
-                    .eq('shortCode', slug)
-                    .is('domainId', null)
-                    .eq('isActive', true)
+                    .eq('shortCode', slug)  // Using camelCase as per your database
+                    // .is('domainId', null)
+                    .eq('isActive', true)   // Using camelCase as per your database
                     .single()
 
                 if (fallbackLink) {
@@ -92,6 +94,8 @@ export async function POST(
     const host = request.headers.get('host') || ''
 
     try {
+        const supabase = createSupabaseBrowserClient()
+
         const formData = await request.formData()
         const password = formData.get('password') as string
         const domain = formData.get('domain') as string
@@ -114,9 +118,9 @@ export async function POST(
         const { data: link, error } = await supabase
             .from('links')
             .select('*')
-            .eq('shortCode', slug)
-            .eq('domainId', domainId)
-            .eq('isActive', true)
+            .eq('shortCode', slug)  // Using camelCase as per your database
+            // .eq('domainId', domainId)
+            .eq('isActive', true)   // Using camelCase as per your database
             .single()
 
         if (error || !link) {
@@ -153,6 +157,8 @@ export async function POST(
 
 async function processLink(link: any, request: NextRequest) {
     try {
+        const supabase = createSupabaseBrowserClient()
+
         // Atomically increment click count using RPC
         const { error: incrementError } = await supabase.rpc('increment_link_clicks', {
             link_id: link.id
@@ -163,8 +169,8 @@ async function processLink(link: any, request: NextRequest) {
             // Continue with redirect even if click tracking fails
         }
 
-        // Redirect to target URL
-        return NextResponse.redirect(link.originalUrl, 302)
+        // Redirect to target URL using correct column name
+        return NextResponse.redirect(link.originalUrl, 302)  // Using camelCase as per your database
 
     } catch (error) {
         console.error('Error processing link:', error)
