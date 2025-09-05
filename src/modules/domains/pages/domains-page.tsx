@@ -25,7 +25,6 @@ import {
 import Link from "next/link"
 
 import { useDomains } from "../hooks/useDomains"
-import type { Domain } from "../types"
 
 export function DomainsPage() {
     const {
@@ -38,7 +37,6 @@ export function DomainsPage() {
         verifyDomain,
         deleteDomain,
         toggleDomainStatus,
-        resetForm,
         updateFormData,
         toggleCreateDialog
     } = useDomains()

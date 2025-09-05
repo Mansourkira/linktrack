@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { supabase } from "@/lib/supabaseClient"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { AnalyticsData, AnalyticsFilters, AnalyticsState } from "../types"
 
 export function useAnalytics() {
@@ -20,6 +20,7 @@ export function useAnalytics() {
             setState(prev => ({ ...prev, isLoading: true, error: null }))
 
             // Get current user
+            const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 throw new Error('User not authenticated')

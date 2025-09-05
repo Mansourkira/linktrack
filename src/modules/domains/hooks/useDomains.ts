@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabaseClient"
+import { supabase } from "@/lib/supabase/client"
 import type { Domain, CreateDomainData, DomainsState, DomainVerificationResult } from "../types"
 
 export function useDomains() {
