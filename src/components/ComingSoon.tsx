@@ -1,45 +1,82 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { IconClock, IconRocket, IconCheck } from "@tabler/icons-react"
 import Link from "next/link"
 
-export const ComingSoon = () => {
+interface ComingSoonProps {
+  title?: string
+  description?: string
+  features?: string[]
+  showContact?: boolean
+}
+
+export const ComingSoon = ({
+  title = "Coming Soon",
+  description = "We're building something amazing. Stay tuned for the launch of this feature.",
+  features = [],
+  showContact = false
+}: ComingSoonProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-      <div className="text-center space-y-8 px-6">
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Coming Soon
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            We&apos;re building something amazing. Stay tuned for the launch of our link tracking platform.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          <p className="text-lg text-gray-500 dark:text-gray-400">
-            Get notified when we launch
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" asChild>
-              <Link href="mailto:hello@linktrack.com">
-                Contact Us
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="https://github.com/yourusername/linktrack">
-                Follow Development
-              </Link>
-            </Button>
+    <div className="flex items-center justify-center py-12">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <IconRocket className="h-8 w-8 text-primary" />
           </div>
-        </div>
-        
-        <div className="pt-8">
-          <p className="text-sm text-gray-400 dark:text-gray-500">
-            © 2024 LinkTrack. All rights reserved.
-          </p>
-        </div>
-      </div>
+          <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+          <CardDescription className="text-base">
+            {description}
+          </CardDescription>
+        </CardHeader>
+
+        {features.length > 0 && (
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center">What's Coming</h3>
+              <div className="grid gap-3">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                      <IconCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 rounded-lg bg-muted/50 p-4">
+              <IconClock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Feature in development</span>
+            </div>
+          </CardContent>
+        )}
+
+        {showContact && (
+          <CardContent className="pt-0">
+            <div className="space-y-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Get notified when this feature launches
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Button size="sm" asChild>
+                  <Link href="mailto:hello@linktrack.com">
+                    Contact Us
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard">
+                    Back to Dashboard
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
     </div>
   )
 } 
