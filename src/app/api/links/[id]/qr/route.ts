@@ -39,10 +39,10 @@ function generateQRCodeSVG(data: string, size: number = 200): string {
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params
+        const { id } = await params
         const { searchParams } = new URL(request.url)
 
         // Get authenticated user using the helper

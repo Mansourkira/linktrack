@@ -16,23 +16,10 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
-import { useUser } from "@/hooks/useUser"
-
-interface Profile {
-    id: string
-    username: string | null
-    email: string | null
-    fullName: string | null
-    avatarUrl: string | null
-    website: string | null
-    themeMode: string | null
-    createdAt: string
-    updatedAt: string
-}
+import { useProfile } from "@/hooks/useProfile"
 
 export default function ProfilePage() {
-    const { user, loading: isLoading } = useUser()
-    const profile = user?.profile
+    const { profile, loading: isLoading, updateProfile, refreshProfile } = useProfile()
     const [isSaving, setIsSaving] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
     const [formData, setFormData] = useState({
@@ -53,47 +40,12 @@ export default function ProfilePage() {
                 themeMode: profile.themeMode || "system"
             })
             setAvatarPreview(profile.avatarUrl)
-        } else if (!isLoading && !profile) {
-            // Create profile if it doesn't exist
-            createProfile()
         }
     }, [profile, isLoading])
 
 
 
-    const createProfile = async () => {
-        try {
-            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
-            const supabase = createSupabaseBrowserClient()
-            const { data: { user } } = await supabase.auth.getUser()
-
-            if (!user) {
-                toast.error("You must be logged in to create a profile")
-                return
-            }
-
-            const { data, error } = await supabase
-                .from('profiles')
-                .insert({
-                    id: user.id,
-                    username: null,
-                    fullName: null,
-                    avatarUrl: null,
-                    website: null,
-                    themeMode: 'system'
-                })
-                .select()
-                .single()
-
-            if (error) throw error
-
-            // Refresh profile data from the store
-            // await refreshProfile() // TODO: Implement profile refresh
-        } catch (error) {
-            console.error('Error creating profile:', error)
-            toast.error('Failed to create profile')
-        }
-    }
+    // Profile creation is now handled automatically by useProfile hook
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -175,26 +127,14 @@ export default function ProfilePage() {
                 }
             }
 
-            // Update profile
-            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
-            const supabase = createSupabaseBrowserClient()
-
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    username: formData.username || null,
-                    fullName: formData.fullName || null,
-                    website: formData.website || null,
-                    themeMode: formData.themeMode,
-                    avatarUrl: avatarUrl,
-                    updatedAt: new Date().toISOString()
-                })
-                .eq('id', profile.id)
-
-            if (error) throw error
-
-            // Refresh profile data from the store
-            // await refreshProfile() // TODO: Implement profile refresh
+            // Update profile using the hook
+            await updateProfile({
+                username: formData.username || null,
+                fullName: formData.fullName || null,
+                website: formData.website || null,
+                themeMode: formData.themeMode,
+                avatarUrl: avatarUrl
+            })
 
             // Clear avatar file
             setAvatarFile(null)
@@ -225,19 +165,11 @@ export default function ProfilePage() {
                 }
             }
 
-            // Update profile
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    avatarUrl: null,
-                    updatedAt: new Date().toISOString()
-                })
-                .eq('id', profile.id)
+            // Update profile using the hook
+            await updateProfile({
+                avatarUrl: null
+            })
 
-            if (error) throw error
-
-            // Refresh profile data from the store
-            // await refreshProfile() // TODO: Implement profile refresh
             setAvatarPreview(null)
             setAvatarFile(null)
 

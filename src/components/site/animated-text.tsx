@@ -24,14 +24,7 @@ export function AnimatedText({ text, className, mode = "per-line", delay = 0 }: 
 
   const itemVariants = {
     hidden: { opacity: 0, y: -12 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.45,
-        ease: "easeOut",
-      },
-    },
+    visible: { opacity: 1, y: 0 },
   }
 
   const splitText = mode === "per-line" ? text.split("\n").filter((line) => line.trim() !== "") : text.split(" ")
@@ -47,6 +40,10 @@ export function AnimatedText({ text, className, mode = "per-line", delay = 0 }: 
         <motion.span
           key={index}
           variants={itemVariants}
+          transition={{
+            duration: 0.45,
+            ease: "easeOut",
+          }}
           className={mode === "per-line" ? "block" : "inline-block mr-1"}
         >
           {item}

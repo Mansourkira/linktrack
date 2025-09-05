@@ -7,9 +7,9 @@ export const runtime = 'edge'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
-    const slug = params.slug
+    const { slug } = await params
     const host = request.headers.get('host') || ''
 
     try {
@@ -88,9 +88,9 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
-    const slug = params.slug
+    const { slug } = await params
     const host = request.headers.get('host') || ''
 
     try {

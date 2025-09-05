@@ -377,7 +377,7 @@ export async function generateUniqueShortCode(): Promise<string> {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     const length = 6
 
-    const supabase = await createClient()
+    const supabase = await createSupabaseServerClient()
 
     let attempts = 0
     const maxAttempts = 10

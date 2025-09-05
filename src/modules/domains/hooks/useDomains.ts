@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabase/client"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { Domain, CreateDomainData, DomainsState, DomainVerificationResult } from "../types"
 
 export function useDomains() {
@@ -25,6 +25,7 @@ export function useDomains() {
             setState(prev => ({ ...prev, isLoading: true, error: null }))
 
             // Get current user
+            const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 throw new Error('User not authenticated')
@@ -107,6 +108,7 @@ export function useDomains() {
             setState(prev => ({ ...prev, isOperationLoading: true }))
 
             // Get current user
+            const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
                 toast.error("You must be logged in to create domains")
@@ -207,6 +209,7 @@ export function useDomains() {
 
     const deleteDomain = useCallback(async (domainId: string) => {
         try {
+            const supabase = createSupabaseBrowserClient()
             const { error } = await supabase
                 .from('domains')
                 .delete()

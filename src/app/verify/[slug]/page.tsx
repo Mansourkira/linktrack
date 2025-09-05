@@ -1,19 +1,27 @@
 "use client"
 
-import { useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useSearchParams, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { IconLock } from "@tabler/icons-react"
 
-export default function VerifyPage({ params }: { params: { slug: string } }) {
+export default function VerifyPage() {
     const [password, setPassword] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [slug, setSlug] = useState("")
     const searchParams = useSearchParams()
+    const params = useParams()
     const domain = searchParams.get('domain') || 'linktrack.app'
     const error = searchParams.get('error')
+
+    useEffect(() => {
+        if (params.slug) {
+            setSlug(params.slug as string)
+        }
+    }, [params.slug])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -26,7 +34,7 @@ export default function VerifyPage({ params }: { params: { slug: string } }) {
             formData.append('password', password)
             formData.append('domain', domain)
 
-            const response = await fetch(`/api/redirect/${params.slug}`, {
+            const response = await fetch(`/api/redirect/${slug}`, {
                 method: 'POST',
                 body: formData
             })
@@ -84,7 +92,7 @@ export default function VerifyPage({ params }: { params: { slug: string } }) {
                     </form>
 
                     <div className="mt-4 text-center text-sm text-muted-foreground">
-                        <p>Short code: <code className="bg-gray-100 px-2 py-1 rounded">{params.slug}</code></p>
+                        <p>Short code: <code className="bg-gray-100 px-2 py-1 rounded">{slug}</code></p>
                         <p>Domain: <code className="bg-gray-100 px-2 py-1 rounded">{domain}</code></p>
                     </div>
                 </CardContent>

@@ -1,5 +1,5 @@
 // Test file to debug database issues
-import { supabase } from './supabase/client'
+import { createSupabaseBrowserClient } from './supabase/client'
 
 export async function testDatabaseConnection() {
     console.log('=== Testing Database Connection ===')
@@ -7,6 +7,7 @@ export async function testDatabaseConnection() {
     try {
         // Test 1: Check if we can connect to Supabase
         console.log('1. Testing Supabase connection...')
+        const supabase = createSupabaseBrowserClient()
         const { data: authData, error: authError } = await supabase.auth.getSession()
         console.log('Auth connection:', authError ? '❌ Failed' : '✅ Success')
         if (authError) console.error('Auth error:', authError)

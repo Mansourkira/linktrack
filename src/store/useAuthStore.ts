@@ -39,7 +39,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({ loading: true, error: null })
 
             // Import supabase client dynamically to avoid SSR issues
-            const { supabase } = await import('@/lib/supabase/client')
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
             const { data: { user }, error } = await supabase.auth.getUser()
             console.log('user', user)
             if (error) {
@@ -98,7 +99,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (!currentUser) return
 
         try {
-            const { supabase } = await import('@/lib/supabase/client')
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
 
             // Fetch updated profile data
             const { data: profile, error: profileError } = await supabase
