@@ -16,7 +16,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabaseClient"
+import { useUser } from "@/hooks/useUser"
 
 interface Profile {
     id: string
@@ -31,8 +31,8 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-    const [profile, setProfile] = useState<Profile | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const { user, loading: isLoading } = useUser()
+    const profile = user?.profile
     const [isSaving, setIsSaving] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
     const [formData, setFormData] = useState({
@@ -45,57 +45,37 @@ export default function ProfilePage() {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
     useEffect(() => {
-        fetchProfile()
-    }, [])
+        if (profile) {
+            setFormData({
+                username: profile.username || "",
+                fullName: profile.fullName || "",
+                website: profile.website || "",
+                themeMode: profile.themeMode || "system"
+            })
+            setAvatarPreview(profile.avatarUrl)
+        } else if (!isLoading && !profile) {
+            // Create profile if it doesn't exist
+            createProfile()
+        }
+    }, [profile, isLoading])
 
-    const fetchProfile = async () => {
+
+
+    const createProfile = async () => {
         try {
-            setIsLoading(true)
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
 
             if (!user) {
-                toast.error("You must be logged in to view your profile")
+                toast.error("You must be logged in to create a profile")
                 return
             }
 
             const { data, error } = await supabase
                 .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single()
-
-            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-                throw error
-            }
-
-            if (data) {
-                setProfile(data)
-                setFormData({
-                    username: data.username || "",
-                    fullName: data.fullName || "",
-                    website: data.website || "",
-                    themeMode: data.themeMode || "system"
-                })
-                setAvatarPreview(data.avatarUrl)
-            } else {
-                // Create profile if it doesn't exist
-                await createProfile(user.id, user.email || "")
-            }
-        } catch (error) {
-            console.error('Error fetching profile:', error)
-            toast.error('Failed to fetch profile')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const createProfile = async (userId: string, email: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
                 .insert({
-                    id: userId,
-                    email: email,
+                    id: user.id,
                     username: null,
                     fullName: null,
                     avatarUrl: null,
@@ -107,13 +87,8 @@ export default function ProfilePage() {
 
             if (error) throw error
 
-            setProfile(data)
-            setFormData({
-                username: "",
-                fullName: "",
-                website: "",
-                themeMode: "system"
-            })
+            // Refresh profile data from the store
+            // await refreshProfile() // TODO: Implement profile refresh
         } catch (error) {
             console.error('Error creating profile:', error)
             toast.error('Failed to create profile')
@@ -151,6 +126,9 @@ export default function ProfilePage() {
 
         try {
             setIsUploading(true)
+
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
 
             // Generate unique filename
             const fileExt = avatarFile.name.split('.').pop()
@@ -198,6 +176,9 @@ export default function ProfilePage() {
             }
 
             // Update profile
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
+
             const { error } = await supabase
                 .from('profiles')
                 .update({
@@ -212,15 +193,8 @@ export default function ProfilePage() {
 
             if (error) throw error
 
-            // Update local state
-            setProfile(prev => prev ? {
-                ...prev,
-                username: formData.username || null,
-                fullName: formData.fullName || null,
-                website: formData.website || null,
-                themeMode: formData.themeMode,
-                avatarUrl: avatarUrl
-            } : null)
+            // Refresh profile data from the store
+            // await refreshProfile() // TODO: Implement profile refresh
 
             // Clear avatar file
             setAvatarFile(null)
@@ -237,6 +211,9 @@ export default function ProfilePage() {
     const removeAvatar = async () => {
         try {
             if (!profile?.avatarUrl) return
+
+            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
+            const supabase = createSupabaseBrowserClient()
 
             // Remove from storage if it's a custom upload
             if (profile.avatarUrl.includes('avatars/')) {
@@ -259,7 +236,8 @@ export default function ProfilePage() {
 
             if (error) throw error
 
-            setProfile(prev => prev ? { ...prev, avatarUrl: null } : null)
+            // Refresh profile data from the store
+            // await refreshProfile() // TODO: Implement profile refresh
             setAvatarPreview(null)
             setAvatarFile(null)
 
