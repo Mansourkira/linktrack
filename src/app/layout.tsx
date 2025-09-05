@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { ProgressBar } from "@/components/ui/progress-bar"
+import { AuthProvider } from "@/components/auth/AuthProvider"
 import "./globals.css"
 
 const inter = Inter({
@@ -50,9 +51,11 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ProgressBar />
-          {children}
-          <Toaster />
+          <AuthProvider>
+            <ProgressBar />
+            {children}
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
