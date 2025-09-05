@@ -25,6 +25,7 @@ import {
 import Link from "next/link"
 
 import { useDomains } from "../hooks/useDomains"
+import { getShortUrl } from "@/modules/links/config"
 
 export function DomainsPage() {
     const {
@@ -258,7 +259,14 @@ export function DomainsPage() {
                                             {domain.linkedLinks.map((link) => (
                                                 <div key={link.id} className="flex items-center justify-between p-2 bg-muted rounded">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-mono text-sm">{link.shortCode}</span>
+                                                        <a
+                                                            href={getShortUrl(link.shortCode)}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                                        >
+                                                            {link.shortCode}
+                                                        </a>
                                                         <span className="text-xs text-muted-foreground truncate max-w-[200px]">
                                                             {link.originalUrl}
                                                         </span>

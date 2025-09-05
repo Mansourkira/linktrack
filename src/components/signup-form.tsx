@@ -10,6 +10,7 @@ interface SignupFormProps {
   onSubmit?: (data: { email: string; password: string; confirmPassword: string }) => Promise<void>
   isLoading?: boolean
   error?: string | null
+  onSwitchToLogin?: () => void
 }
 
 export function SignupForm({
@@ -17,6 +18,7 @@ export function SignupForm({
   onSubmit,
   isLoading = false,
   error,
+  onSwitchToLogin,
   ...props
 }: SignupFormProps) {
   const [email, setEmail] = useState("")
@@ -93,9 +95,13 @@ export function SignupForm({
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a href="#login" className="text-primary hover:underline font-medium">
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="text-primary hover:underline font-medium"
+          >
             Sign in
-          </a>
+          </button>
         </div>
       </form>
     </div>

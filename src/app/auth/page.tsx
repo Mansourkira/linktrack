@@ -6,10 +6,8 @@ import { SignupForm } from "@/components/signup-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
-import { testDatabaseConnection } from "@/lib/test-db"
 import { LinkIcon } from "lucide-react"
 import Link from "next/link"
-import { useAuthStore } from "@/store/useAuthStore"
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
 
 export default function Page() {
@@ -95,14 +93,6 @@ export default function Page() {
     }
   }
 
-  const handleTestDatabase = async () => {
-    try {
-      await testDatabaseConnection()
-      toast.success('Database test completed! Check console for results.')
-    } catch (err) {
-      toast.error('Database test failed!')
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -178,35 +168,6 @@ export default function Page() {
             </div>
           )}
 
-          {/* Debug Button */}
-          <div className="mb-4 text-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleTestDatabase}
-              className="text-xs"
-            >
-              🐛 Test Database Connection
-            </Button>
-          </div>
-
-          {/* Form Toggle Buttons */}
-          <div className="mb-6 flex rounded-lg border bg-card/50 backdrop-blur-sm p-1">
-            <Button
-              variant={activeForm === 'login' ? 'default' : 'ghost'}
-              className="flex-1 rounded-md"
-              onClick={() => handleFormSwitch('login')}
-            >
-              Login
-            </Button>
-            <Button
-              variant={activeForm === 'signup' ? 'default' : 'ghost'}
-              className="flex-1 rounded-md"
-              onClick={() => handleFormSwitch('signup')}
-            >
-              Sign Up
-            </Button>
-          </div>
 
           {/* Form Container */}
           <Card className="bg-card/50 backdrop-blur-sm border shadow-2xl">
@@ -227,12 +188,14 @@ export default function Page() {
                   onSubmit={handleLogin}
                   isLoading={loading}
                   error={error}
+                  onSwitchToSignup={() => handleFormSwitch('signup')}
                 />
               ) : (
                 <SignupForm
                   onSubmit={handleSignup}
                   isLoading={loading}
                   error={error}
+                  onSwitchToLogin={() => handleFormSwitch('login')}
                 />
               )}
             </CardContent>

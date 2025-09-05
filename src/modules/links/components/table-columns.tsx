@@ -16,9 +16,27 @@ export const createLinkColumns = (
             header: "Short Code",
             cell: ({ row }) => {
                 const shortCode = row.getValue("shortCode") as string
+                const shortUrl = getShortUrl(shortCode)
                 return (
-                    <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm">{shortCode}</span>
+                    <div className="flex items-center gap-2 group">
+                        <a
+                            href={shortUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {shortCode}
+                        </a>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(shortUrl)}
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Copy short URL"
+                        >
+                            <IconCopy className="h-3 w-3" />
+                        </Button>
                     </div>
                 )
             },
