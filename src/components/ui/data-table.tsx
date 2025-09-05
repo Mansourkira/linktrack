@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
                 {/* Search and Filters */}
                 <div className="flex flex-1 items-center gap-2">
                     {searchKey && (
-                        <div className="relative flex-1 max-w-sm">
+                        <div className="relative flex-1" style={{ width: '75%' }}>
                             <IconSearch className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder={searchPlaceholder}
