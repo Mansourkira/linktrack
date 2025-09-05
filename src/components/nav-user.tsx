@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -8,10 +7,10 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
-import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import type { User } from '@supabase/supabase-js'
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useLogout } from "@/hooks/useLogout"
 
 import {
   Avatar,
@@ -37,57 +36,20 @@ import {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Get current user
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-      } catch (error) {
-        console.error('Error getting user:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    getUser()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setUser(null)
-        router.push('/auth')
-      } else if (session?.user) {
-        setUser(session.user)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [router])
+  const { user, loading } = useAuth()
+  const logout = useLogout()
 
   const handleLogout = async () => {
     try {
-      setIsLoading(true)
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        toast.error('Logout failed: ' + error.message)
-      } else {
-        toast.success('Logged out successfully')
-        router.push('/auth')
-      }
+      await logout()
+      toast.success('Logged out successfully')
     } catch (error) {
       toast.error('Logout failed')
-    } finally {
-      setIsLoading(false)
     }
   }
 
   // Show loading state
-  if (isLoading) {
+  if (loading) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -195,9 +157,9 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+            <DropdownMenuItem onClick={handleLogout} disabled={loading}>
               <IconLogout />
-              {isLoading ? 'Logging out...' : 'Log out'}
+              {loading ? 'Logging out...' : 'Log out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
