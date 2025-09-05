@@ -1,5 +1,5 @@
 // Test file to debug database issues
-import { supabase } from './supabaseClient'
+import { supabase } from './supabase/client'
 
 export async function testDatabaseConnection() {
     console.log('=== Testing Database Connection ===')

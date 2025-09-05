@@ -17,6 +17,7 @@ export const subStatus = pgEnum("sub_status", ["trialing", "active", "past_due",
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   username: varchar("username", { length: 64 }).unique(), // Temporarily nullable for quick fix
+  email: text("email"),
   fullName: varchar("full_name", { length: 160 }),
   avatarUrl: text("avatar_url"),
   website: text("website"),
@@ -25,6 +26,7 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
   usernameIdx: index("profiles_username_idx").on(table.username),
+  emailIdx: index("profiles_email_idx").on(table.email),
 }))
 
 export const workspaces = pgTable("workspaces", {
@@ -68,42 +70,32 @@ export const domains = pgTable("domains", {
 export const links = pgTable("links", {
   id: uuid("id").primaryKey().defaultRandom(),
 
-  // keep profile_id as you requested
-  profileId: uuid("profile_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  // Profile ID for ownership
+  ownerProfileId: uuid("ownerProfileId").notNull().references(() => profiles.id, { onDelete: "cascade" }),
 
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
-  domainId: uuid("domain_id").references(() => domains.id, { onDelete: "set null" }),                              // nullable → use default system domain if null
+  // short code/slug for the link
+  shortCode: varchar("shortCode", { length: 128 }).notNull(),
 
-  // short path/slug on that domain (unique per domain)
-  slug: varchar("slug", { length: 128 }).notNull(),
-
-  // destination
-  targetUrl: text("target_url").notNull(),
+  // destination URL
+  originalUrl: text("originalUrl").notNull(),
 
   // optional access controls / limits
-  isActive: boolean("is_active").default(true).notNull(),
-  password: varchar("password", { length: 120 }),           // if you want password-protected links
-  expiresAt: timestamp("expires_at"),
-  maxClicks: integer("max_clicks"),
-  clickCount: integer("click_count").default(0).notNull(),
+  isPasswordProtected: boolean("isPasswordProtected").default(false).notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  clickCount: integer("clickCount").default(0).notNull(),
 
-  // metadata
-  title: varchar("title", { length: 200 }),
-  description: varchar("description", { length: 300 }),
-  ogImageUrl: text("og_image_url"),
+  // timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  deletedAt: timestamp("deletedAt"),
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
-  // Unique constraint: slug must be unique per domain (or null domain for system domain)
-  slugDomainIdx: uniqueIndex("links_slug_domain_unique").on(table.slug, table.domainId),
-  profileIdx: index("links_profile_idx").on(table.profileId),
-  workspaceIdx: index("links_workspace_idx").on(table.workspaceId),
-  domainIdx: index("links_domain_idx").on(table.domainId),
-  slugIdx: index("links_slug_idx").on(table.slug),
-  isActiveIdx: index("links_active_idx").on(table.isActive),
-  expiresAtIdx: index("links_expires_idx").on(table.expiresAt),
-  createdAtIdx: index("links_created_idx").on(table.createdAt),
+  // Unique constraint: shortCode must be unique
+  shortCodeIdx: uniqueIndex("links_shortcode_unique").on(table.shortCode),
+  ownerProfileIdx: index("links_owner_profile_idx").on(table.ownerProfileId),
+  activeIdx: index("links_active_idx").on(table.isActive),
+  createdIdx: index("links_created_idx").on(table.createdAt),
+  deletedAtIdx: index("links_deleted_at_idx").on(table.deletedAt),
 }))
 
 export const linkUtmDefaults = pgTable("link_utm_defaults", {

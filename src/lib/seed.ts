@@ -1,5 +1,5 @@
 import { db } from './db';
-import { plans, profiles, workspaces } from './schema';
+import { plans, profiles, workspaces } from './schemas/schema';
 
 export async function seed() {
     console.log('🌱 Seeding database...');

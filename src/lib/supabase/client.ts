@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { config } from './config'
+import { config } from '../config'
 
 // Get Supabase configuration from centralized config
 const supabaseUrl = config.supabase.url
