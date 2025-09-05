@@ -5,17 +5,18 @@ import { LoginForm } from "@/components/login-form"
 import { SignupForm } from "@/components/signup-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuthActions } from "@/lib/auth-actions"
 import { toast } from "sonner"
 import { testDatabaseConnection } from "@/lib/test-db"
 import { LinkIcon } from "lucide-react"
 import Link from "next/link"
+import { useAuthStore } from "@/store/useAuthStore"
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
 
 export default function Page() {
   const [activeForm, setActiveForm] = useState<'login' | 'signup'>('login')
-  const { login, register, isLoading, loadingMessage } = useAuthActions()
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const supabase = createSupabaseBrowserClient()
   useEffect(() => {
     // Check URL hash on component mount
     const hash = window.location.hash.slice(1) // Remove the # symbol
@@ -35,13 +36,22 @@ export default function Page() {
 
   const handleLogin = async ({ email, password }: { email: string; password: string }) => {
     try {
+      setLoading(true)
       setError(null)
-      await login(email, password)
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+        toast.error(error.message)
+        return
+      }
       toast.success('Logged in successfully!')
+      window.location.href = '/dashboard'
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
       setError(errorMessage)
       toast.error(errorMessage)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -56,12 +66,32 @@ export default function Page() {
   }) => {
     try {
       setError(null)
-      await register(email, password, confirmPassword)
+      setLoading(true)
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(error.message)
+        toast.error(error.message)
+        return
+      }
+
+      // If email confirm is enabled, try immediate login
+      if (!data.session) {
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+        if (loginError) {
+          setError(loginError.message)
+          toast.error(loginError.message)
+          return
+        }
+      }
+
       toast.success('Account created successfully!')
+      window.location.href = '/dashboard'
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed'
       setError(errorMessage)
       toast.error(errorMessage)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -129,11 +159,21 @@ export default function Page() {
       <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md">
           {/* Loading Message */}
-          {isLoading && loadingMessage && (
-            <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 p-3 text-center">
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <span className="text-sm font-medium text-primary">{loadingMessage}</span>
+          {loading && (
+            <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 p-4 text-center">
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <span className="text-sm font-medium text-primary">
+                    {activeForm === 'login' ? 'Signing you in...' : 'Creating your account...'}
+                  </span>
+                </div>
+                <div className="w-full bg-primary/20 rounded-full h-2">
+                  <div className="bg-primary h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {activeForm === 'login' ? 'Please wait while we authenticate you...' : 'Setting up your account...'}
+                </p>
               </div>
             </div>
           )}
@@ -185,13 +225,13 @@ export default function Page() {
               {activeForm === 'login' ? (
                 <LoginForm
                   onSubmit={handleLogin}
-                  isLoading={isLoading}
+                  isLoading={loading}
                   error={error}
                 />
               ) : (
                 <SignupForm
                   onSubmit={handleSignup}
-                  isLoading={isLoading}
+                  isLoading={loading}
                   error={error}
                 />
               )}
