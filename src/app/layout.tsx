@@ -20,6 +20,15 @@ export const metadata: Metadata = {
   keywords: ["short links", "url shortener", "link analytics", "branded domains", "click tracking", "utm tracking"],
   authors: [{ name: "LinkTrack" }],
   creator: "LinkTrack",
+  icons: {
+    icon: [
+      { url: "/linktrack.png", sizes: "32x32", type: "image/png" },
+      { url: "/linktrack.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/linktrack.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
