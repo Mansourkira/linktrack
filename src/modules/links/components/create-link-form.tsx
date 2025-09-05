@@ -20,7 +20,7 @@ interface CreateLinkFormProps {
     isOpen: boolean
     onOpenChange: (open: boolean) => void
     formData: CreateLinkFormData
-    onFormDataChange: (field: keyof CreateLinkFormData, value: any) => void
+    onFormDataChange: (field: keyof CreateLinkFormData, value: string | boolean) => void
     onSubmit: (e: React.FormEvent) => void
     isSubmitting: boolean
     onReset: () => void
@@ -35,7 +35,7 @@ export function CreateLinkForm({
     isSubmitting,
     onReset,
 }: CreateLinkFormProps) {
-    const handleInputChange = (field: keyof CreateLinkFormData, value: any) => {
+    const handleInputChange = (field: keyof CreateLinkFormData, value: string | boolean) => {
         onFormDataChange(field, value)
     }
 

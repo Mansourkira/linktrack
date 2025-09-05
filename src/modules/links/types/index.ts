@@ -26,7 +26,7 @@ export interface LinksState {
 export interface LinkColumn {
     accessorKey: keyof Link
     header: string
-    cell: (props: { row: any }) => React.ReactNode
+    cell: (props: { row: { original: Link } }) => React.ReactNode
 }
 
 export interface LinkConfig {

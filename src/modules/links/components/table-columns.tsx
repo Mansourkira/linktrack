@@ -1,6 +1,6 @@
 "use client"
 
-import { IconCopy, IconExternalLink, IconEye, IconEyeOff, IconLink } from "@tabler/icons-react"
+import { IconCopy, IconExternalLink, IconEye, IconEyeOff, IconLink, IconQrcode } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -8,38 +8,17 @@ import type { Link } from "../types"
 import { getShortUrl } from "../config"
 
 export const createLinkColumns = (
-    copyToClipboard: (text: string) => void
+    copyToClipboard: (text: string) => void,
+    toggleLinkStatus?: (id: string) => void
 ): ColumnDef<Link>[] => [
         {
             accessorKey: "shortCode",
             header: "Short Code",
             cell: ({ row }) => {
                 const shortCode = row.getValue("shortCode") as string
-                const shortUrl = getShortUrl(shortCode)
-
                 return (
                     <div className="flex items-center gap-2">
                         <span className="font-mono text-sm">{shortCode}</span>
-                        <div className="flex items-center gap-1">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => copyToClipboard(shortUrl)}
-                                className="h-6 w-6 p-0"
-                                title="Copy link"
-                            >
-                                <IconCopy className="h-3 w-3" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => window.open(shortUrl, '_blank')}
-                                className="h-6 w-6 p-0"
-                                title="Open link"
-                            >
-                                <IconLink className="h-3 w-3" />
-                            </Button>
-                        </div>
                     </div>
                 )
             },
@@ -81,10 +60,19 @@ export const createLinkColumns = (
             header: "Status",
             cell: ({ row }) => {
                 const isActive = row.getValue("isActive") as boolean
+                const linkId = row.original.id
+
                 return (
-                    <Badge variant={isActive ? "default" : "secondary"}>
-                        {isActive ? "Active" : "Inactive"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                        <Badge
+                            variant={isActive ? "default" : "secondary"}
+                            className={`cursor-pointer ${toggleLinkStatus ? 'hover:opacity-80' : ''}`}
+                            onClick={() => toggleLinkStatus?.(linkId)}
+                            title={toggleLinkStatus ? "Click to toggle status" : ""}
+                        >
+                            {isActive ? "Active" : "Inactive"}
+                        </Badge>
+                    </div>
                 )
             },
         },
@@ -95,11 +83,12 @@ export const createLinkColumns = (
                 const isProtected = row.getValue("isPasswordProtected") as boolean
                 return (
                     <div className="flex items-center">
-                        {isProtected ? (
-                            <IconEyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                            <IconEye className="h-4 w-4 text-muted-foreground" />
-                        )}
+                        <Badge
+                            variant={isProtected ? "default" : "secondary"}
+                            className={`text-xs ${isProtected ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}
+                        >
+                            {isProtected ? "ON" : "OFF"}
+                        </Badge>
                     </div>
                 )
             },

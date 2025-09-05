@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabaseClient"
-import type { Link, CreateLinkFormData, LinksState } from "../types"
+import type { CreateLinkFormData, LinksState } from "../types"
 
 export function useLinks() {
     const [state, setState] = useState<LinksState>({
@@ -20,122 +19,49 @@ export function useLinks() {
         isActive: true,
     })
 
-    // Fetch links
+    // Fetch links using API route
     const fetchLinks = useCallback(async () => {
         try {
             setState(prev => ({ ...prev, isLoading: true }))
-            const { data, error } = await supabase
-                .from('links')
-                .select('*')
-                .order('createdAt', { ascending: false })
 
-            if (error) throw error
-            setState(prev => ({ ...prev, links: data || [] }))
+            const response = await fetch('/api/links')
+            const result = await response.json()
+
+            if (response.ok) {
+                setState(prev => ({ ...prev, links: result.links || [] }))
+            } else {
+                toast.error(result.error || 'Failed to fetch links')
+                setState(prev => ({ ...prev, links: [] }))
+            }
         } catch (error) {
             console.error('Error fetching links:', error)
             toast.error('Failed to fetch links')
+            setState(prev => ({ ...prev, links: [] }))
         } finally {
             setState(prev => ({ ...prev, isLoading: false }))
         }
     }, [])
 
-    // Generate short code
-    const generateShortCode = useCallback(() => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        let result = ''
-        for (let i = 0; i < 6; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length))
-        }
-        return result
-    }, [])
-
-    // Create link
-    const createLink = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        if (!formData.originalUrl) {
-            toast.error("Original URL is required")
-            return
-        }
-
+    // Generate short code using API route
+    const generateShortCode = useCallback(async () => {
         try {
-            setState(prev => ({ ...prev, isOperationLoading: true }))
-
-            // Get current user
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                toast.error("You must be logged in to create links")
-                return
+            // For now, use client-side generation
+            // TODO: Implement server-side generation via API
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let result = ''
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length))
             }
-
-            // Generate short code if not provided
-            let shortCode = formData.shortCode
-            if (!shortCode) {
-                shortCode = generateShortCode()
+            return result
+        } catch (error) {
+            console.error('Error generating short code:', error)
+            // Fallback to client-side generation
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let result = ''
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length))
             }
-
-            // Check if short code already exists
-            const { data: existingLink } = await supabase
-                .from('links')
-                .select('id')
-                .eq('shortCode', shortCode)
-                .single()
-
-            if (existingLink) {
-                toast.error("Short code already exists. Please choose a different one.")
-                return
-            }
-
-            // Create the link
-            const { error } = await supabase
-                .from('links')
-                .insert({
-                    originalUrl: formData.originalUrl,
-                    shortCode,
-                    isPasswordProtected: formData.isPasswordProtected,
-                    isActive: formData.isActive,
-                    ownerProfileId: user.id,
-                })
-
-            if (error) throw error
-
-            toast.success("Link created successfully!")
-            setState(prev => ({ ...prev, isCreateDialogOpen: false }))
-            resetForm()
-            fetchLinks()
-        } catch (err) {
-            console.error('Error creating link:', err)
-            toast.error('Failed to create link')
-        } finally {
-            setState(prev => ({ ...prev, isOperationLoading: false }))
-        }
-    }, [formData, generateShortCode, fetchLinks])
-
-    // Delete link
-    const deleteLink = useCallback(async (id: string) => {
-        try {
-            const { error } = await supabase
-                .from('links')
-                .delete()
-                .eq('id', id)
-
-            if (error) throw error
-
-            toast.success('Link deleted successfully')
-            fetchLinks()
-        } catch (err) {
-            console.error('Error deleting link:', err)
-            toast.error('Failed to delete link')
-        }
-    }, [fetchLinks])
-
-    // Copy to clipboard
-    const copyToClipboard = useCallback(async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text)
-            toast.success('Copied to clipboard')
-        } catch (err) {
-            toast.error('Failed to copy to clipboard')
+            return result
         }
     }, [])
 
@@ -149,8 +75,115 @@ export function useLinks() {
         })
     }, [])
 
+    // Create link using API route
+    const createLink = useCallback(async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!formData.originalUrl) {
+            toast.error("Original URL is required")
+            return
+        }
+
+        try {
+            setState(prev => ({ ...prev, isOperationLoading: true }))
+
+            // Generate short code if not provided
+            let shortCode = formData.shortCode
+            if (!shortCode) {
+                shortCode = await generateShortCode()
+            }
+
+            // Create the link using API route
+            const response = await fetch('/api/links', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    shortCode,
+                    originalUrl: formData.originalUrl,
+                    isPasswordProtected: formData.isPasswordProtected,
+                    isActive: formData.isActive
+                })
+            })
+
+            const result = await response.json()
+
+            if (response.ok) {
+                toast.success('Link created successfully!')
+                resetForm()
+                setState(prev => ({ ...prev, isCreateDialogOpen: false }))
+                fetchLinks() // Refresh the list
+            } else {
+                toast.error(result.error || 'Failed to create link')
+            }
+        } catch (error) {
+            console.error('Error creating link:', error)
+            toast.error('Failed to create link')
+        } finally {
+            setState(prev => ({ ...prev, isOperationLoading: false }))
+        }
+    }, [formData, generateShortCode, fetchLinks, resetForm])
+
+    // Delete link using API route
+    const deleteLink = useCallback(async (id: string) => {
+        try {
+            const response = await fetch(`/api/links/${id}`, {
+                method: 'DELETE',
+            })
+
+            const result = await response.json()
+
+            if (response.ok) {
+                toast.success('Link deleted successfully')
+                fetchLinks() // Refresh the list
+            } else {
+                toast.error(result.error || 'Failed to delete link')
+            }
+        } catch (error) {
+            console.error('Error deleting link:', error)
+            toast.error('Failed to delete link')
+        }
+    }, [fetchLinks])
+
+    // Toggle link status using API route
+    const toggleLinkStatus = useCallback(async (id: string) => {
+        try {
+            const response = await fetch(`/api/links/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: 'toggleStatus' })
+            })
+
+            const result = await response.json()
+
+            if (response.ok) {
+                toast.success(`Link ${result.isActive ? 'activated' : 'deactivated'} successfully`)
+                fetchLinks() // Refresh the list
+            } else {
+                toast.error(result.error || 'Failed to toggle link status')
+            }
+        } catch (error) {
+            console.error('Error toggling link status:', error)
+            toast.error('Failed to toggle link status')
+        }
+    }, [fetchLinks])
+
+    // Copy to clipboard
+    const copyToClipboard = useCallback(async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text)
+            toast.success('Copied to clipboard')
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error)
+            toast.error('Failed to copy to clipboard')
+        }
+    }, [])
+
     // Update form data
-    const updateFormData = useCallback((field: keyof CreateLinkFormData, value: any) => {
+    const updateFormData = useCallback((field: keyof CreateLinkFormData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }, [])
 
@@ -172,10 +205,12 @@ export function useLinks() {
         // Actions
         createLink,
         deleteLink,
+        toggleLinkStatus,
         copyToClipboard,
         resetForm,
         updateFormData,
         toggleCreateDialog,
         fetchLinks,
+        generateShortCode,
     }
 }

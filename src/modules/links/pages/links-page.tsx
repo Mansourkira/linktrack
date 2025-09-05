@@ -23,13 +23,14 @@ export function LinksPage() {
         formData,
         createLink,
         deleteLink,
+        toggleLinkStatus,
         copyToClipboard,
         resetForm,
         updateFormData,
         toggleCreateDialog,
     } = useLinks()
 
-    const columns = createLinkColumns(copyToClipboard)
+    const columns = createLinkColumns(copyToClipboard, toggleLinkStatus)
 
     const rowActions = (row: LinkType) => (
         <RowActions
@@ -96,34 +97,23 @@ export function LinksPage() {
             <CrudCard
                 title="Links Management"
                 description="Create and manage your short links"
-                actions={
-                    <CreateLinkForm
-                        isOpen={isCreateDialogOpen}
-                        onOpenChange={toggleCreateDialog}
-                        formData={formData}
-                        onFormDataChange={updateFormData}
-                        onSubmit={createLink}
-                        isSubmitting={isOperationLoading}
-                        onReset={resetForm}
-                    />
-                }
             >
                 <DataTable
                     data={links}
                     columns={columns}
                     searchKey="originalUrl"
+                    searchPlaceholder="Search links..."
                     rowActions={rowActions}
                     toolbar={
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => toggleCreateDialog(true)}
-                                disabled={isOperationLoading}
-                            >
-                                Create Link
-                            </Button>
-                        </div>
+                        <CreateLinkForm
+                            isOpen={isCreateDialogOpen}
+                            onOpenChange={toggleCreateDialog}
+                            formData={formData}
+                            onFormDataChange={updateFormData}
+                            onSubmit={createLink}
+                            isSubmitting={isOperationLoading}
+                            onReset={resetForm}
+                        />
                     }
                     emptyState={emptyState}
                     pagination={true}
