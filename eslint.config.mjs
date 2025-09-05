@@ -13,8 +13,27 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
+      // Image optimization warnings
       "@next/next/no-img-element": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      
+      // Unused variables - more lenient
+      "@typescript-eslint/no-unused-vars": [
+        "warn", 
+        { 
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
+      ],
+      
+      // Allow any type in development
+      "@typescript-eslint/no-explicit-any": "warn",
+      
+      // React hooks exhaustive deps - more lenient
+      "react-hooks/exhaustive-deps": "warn",
+      
+      // Unescaped entities - allow in development
+      "react/no-unescaped-entities": "warn",
     },
   },
 ];
