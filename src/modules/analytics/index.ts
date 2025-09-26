@@ -29,3 +29,6 @@ export { ActivityLogsTable } from "./components/activity-logs-table"
 // Pages
 export { AnalyticsPage } from "./pages/analytics-page"
 export { ActivityLogsPage } from "./pages/activity-logs-page"
+
+// Utils
+export { ActivityLogger, logActivity, getClientInfo } from "./utils/activityLogger"

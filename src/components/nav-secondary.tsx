@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import {
   SidebarMenu,
@@ -20,6 +21,8 @@ interface NavSecondaryProps {
 }
 
 export function NavSecondary({ items, onNavigate, isNavigating }: NavSecondaryProps) {
+  const pathname = usePathname()
+
   const handleClick = (url: string) => {
     if (onNavigate) {
       onNavigate(url)
@@ -28,20 +31,24 @@ export function NavSecondary({ items, onNavigate, isNavigating }: NavSecondaryPr
 
   return (
     <SidebarMenu>
-      {items?.map((item: any, index: number) => (
-        <SidebarMenuItem key={index}>
-          <SidebarMenuButton
-            asChild
-            disabled={isNavigating}
-            className={isNavigating ? "opacity-50 cursor-not-allowed" : ""}
-          >
-            <Link href={item.url} onClick={() => handleClick(item.url)}>
-              {item.icon && <item.icon className="h-4 w-4" />}
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+      {items?.map((item: any, index: number) => {
+        const isActive = pathname === item.url
+        return (
+          <SidebarMenuItem key={index}>
+            <SidebarMenuButton
+              asChild
+              disabled={isNavigating}
+              isActive={isActive}
+              className={isNavigating ? "opacity-50 cursor-pointer" : "cursor-pointer"}
+            >
+              <Link href={item.url} onClick={() => handleClick(item.url)}>
+                {item.icon && <item.icon className="h-4 w-4" />}
+                <span>{item.title}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        )
+      })}
     </SidebarMenu>
   )
 }

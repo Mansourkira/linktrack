@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { IconChevronDown, IconChevronRight, IconCopy, IconExternalLink, IconGlobe, IconDeviceMobile, IconDeviceDesktop, IconDeviceTablet } from "@tabler/icons-react"
+import { IconChevronDown, IconChevronRight, IconCopy, IconExternalLink, IconGlobe, IconClock, IconUser, IconLink } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,18 +44,34 @@ export function ActivityLogsTable({ logs, isLoading, onLoadMore, hasMore }: Acti
     }
 
     const getActionIcon = (action: string) => {
-        const actionIcon = action.charAt(0).toUpperCase()
+        let icon = null
         let bgColor = 'bg-muted'
 
-        if (action.includes('created')) bgColor = 'bg-green-100 dark:bg-green-900'
-        else if (action.includes('deleted')) bgColor = 'bg-red-100 dark:bg-red-900'
-        else if (action.includes('clicked')) bgColor = 'bg-blue-100 dark:bg-blue-900'
-        else if (action.includes('updated')) bgColor = 'bg-yellow-100 dark:bg-yellow-900'
-        else if (action.includes('verified')) bgColor = 'bg-purple-100 dark:bg-purple-900'
+        if (action.includes('created')) {
+            bgColor = 'bg-green-100 dark:bg-green-900'
+            icon = <IconLink className="h-4 w-4" />
+        } else if (action.includes('deleted')) {
+            bgColor = 'bg-red-100 dark:bg-red-900'
+            icon = <IconLink className="h-4 w-4" />
+        } else if (action.includes('clicked')) {
+            bgColor = 'bg-blue-100 dark:bg-blue-900'
+            icon = <IconGlobe className="h-4 w-4" />
+        } else if (action.includes('updated')) {
+            bgColor = 'bg-yellow-100 dark:bg-yellow-900'
+            icon = <IconLink className="h-4 w-4" />
+        } else if (action.includes('verified')) {
+            bgColor = 'bg-purple-100 dark:bg-purple-900'
+            icon = <IconGlobe className="h-4 w-4" />
+        } else if (action.includes('login') || action.includes('logout')) {
+            bgColor = 'bg-indigo-100 dark:bg-indigo-900'
+            icon = <IconUser className="h-4 w-4" />
+        } else {
+            icon = <IconGlobe className="h-4 w-4" />
+        }
 
         return (
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${bgColor} text-foreground font-bold text-sm`}>
-                {actionIcon}
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${bgColor} text-foreground`}>
+                {icon}
             </div>
         )
     }
@@ -69,12 +85,19 @@ export function ActivityLogsTable({ logs, isLoading, onLoadMore, hasMore }: Acti
         return 'secondary'
     }
 
-    const getDeviceIcon = (deviceType: string) => {
-        switch (deviceType) {
-            case 'desktop': return <IconDeviceDesktop className="h-4 w-4" />
-            case 'mobile': return <IconDeviceMobile className="h-4 w-4" />
-            case 'tablet': return <IconDeviceTablet className="h-4 w-4" />
-            default: return <IconGlobe className="h-4 w-4" />
+    const formatTimestamp = (timestamp: string) => {
+        const date = new Date(timestamp)
+        const now = new Date()
+        const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
+        if (diffInHours < 1) {
+            return 'Just now'
+        } else if (diffInHours < 24) {
+            return `${diffInHours}h ago`
+        } else if (diffInHours < 168) { // 7 days
+            return `${Math.floor(diffInHours / 24)}d ago`
+        } else {
+            return date.toLocaleDateString()
         }
     }
 
@@ -129,20 +152,27 @@ export function ActivityLogsTable({ logs, isLoading, onLoadMore, hasMore }: Acti
                                         </Badge>
                                     </div>
                                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                        <span className="font-mono">{log.shortCode}</span>
-                                        <span>{new Date(log.timestamp).toLocaleDateString()}</span>
-                                        <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                                        {log.shortCode && (
+                                            <div className="flex items-center gap-1">
+                                                <IconLink className="h-3 w-3" />
+                                                <span className="font-mono">{log.shortCode}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-1">
+                                            <IconClock className="h-3 w-3" />
+                                            <span>{formatTimestamp(log.timestamp)}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                        {getDeviceIcon(log.metadata.deviceType || 'unknown')}
-                                        <span className="capitalize">{log.metadata.deviceType || 'unknown'}</span>
-                                    </div>
-                                    <div className="text-right text-sm">
-                                        <div className="font-medium">{log.metadata.browser}</div>
-                                        <div className="text-muted-foreground">{log.metadata.os}</div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <div className="text-right">
+                                        <div className="font-medium">
+                                            {new Date(log.timestamp).toLocaleDateString()}
+                                        </div>
+                                        <div className="text-xs">
+                                            {new Date(log.timestamp).toLocaleTimeString()}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -152,35 +182,43 @@ export function ActivityLogsTable({ logs, isLoading, onLoadMore, hasMore }: Acti
                                 <div className="border-t bg-muted/30 p-4 space-y-3">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Link Actions */}
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium text-sm">Link Actions</h4>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleCopy(getShortUrl(log.shortCode))}
-                                                >
-                                                    <IconCopy className="mr-2 h-4 w-4" />
-                                                    Copy Link
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleOpenLink(log.shortCode)}
-                                                >
-                                                    <IconExternalLink className="mr-2 h-4 w-4" />
-                                                    Open Link
-                                                </Button>
+                                        {log.shortCode && (
+                                            <div className="space-y-2">
+                                                <h4 className="font-medium text-sm">Quick Actions</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleCopy(getShortUrl(log.shortCode))}
+                                                    >
+                                                        <IconCopy className="mr-2 h-4 w-4" />
+                                                        Copy Link
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleOpenLink(log.shortCode)}
+                                                    >
+                                                        <IconExternalLink className="mr-2 h-4 w-4" />
+                                                        Open Link
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
-                                        {/* Technical Details */}
+                                        {/* Activity Details */}
                                         <div className="space-y-2">
-                                            <h4 className="font-medium text-sm">Technical Details</h4>
+                                            <h4 className="font-medium text-sm">Activity Details</h4>
                                             <div className="space-y-1 text-sm">
                                                 <div className="flex justify-between">
-                                                    <span className="text-muted-foreground">IP Address:</span>
-                                                    <span className="font-mono">{log.ipAddress}</span>
+                                                    <span className="text-muted-foreground">Activity ID:</span>
+                                                    <span className="font-mono text-xs">{log.id.slice(0, 8)}...</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Full Timestamp:</span>
+                                                    <span className="font-mono text-xs">
+                                                        {new Date(log.timestamp).toLocaleString()}
+                                                    </span>
                                                 </div>
                                                 {log.referrer && (
                                                     <div className="flex justify-between">
@@ -190,32 +228,18 @@ export function ActivityLogsTable({ logs, isLoading, onLoadMore, hasMore }: Acti
                                                         </span>
                                                     </div>
                                                 )}
-                                                {log.metadata.country && (
-                                                    <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Location:</span>
-                                                        <span>{log.metadata.city}, {log.metadata.country}</span>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* User Agent */}
-                                    {log.userAgent && (
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium text-sm">User Agent</h4>
-                                            <div className="bg-background p-2 rounded border font-mono text-xs break-all">
-                                                {log.userAgent}
-                                            </div>
-                                        </div>
-                                    )}
-
                                     {/* Additional Metadata */}
-                                    {log.metadata.clickCount && (
-                                        <div className="flex items-center gap-4 text-sm">
-                                            <div>
-                                                <span className="text-muted-foreground">Click Count:</span>
-                                                <span className="ml-2 font-medium">{log.metadata.clickCount}</span>
+                                    {Object.keys(log.metadata).length > 0 && (
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium text-sm">Additional Information</h4>
+                                            <div className="bg-background p-3 rounded border">
+                                                <pre className="text-xs text-muted-foreground whitespace-pre-wrap">
+                                                    {JSON.stringify(log.metadata, null, 2)}
+                                                </pre>
                                             </div>
                                         </div>
                                     )}

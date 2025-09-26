@@ -1,16 +1,77 @@
+"use client"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { CrudCard } from "@/components/ui/crud-card"
 import { IconPlus, IconLink, IconChartBar, IconSettings } from "@tabler/icons-react"
 import Link from "next/link"
-import { requireUser } from "@/lib/auth/server"
+import { StatsCards } from "@/modules/analytics/components/stats-cards"
+import { useAnalytics } from "@/modules/analytics"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
-export default async function Page() {
-  const user = await requireUser();
+export default function Page() {
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
+  const { data, isLoading, error, filters, updateFilters, refreshData } = useAnalytics()
+
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth')
+    }
+  }, [user, authLoading, router])
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="space-y-6 w-full">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-lg">Loading...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!user) {
+    return null
+  }
+  if (isLoading) {
+    return (
+      <div className="space-y-6 w-full">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-lg">Loading analytics...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <div className="space-y-6 w-full">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center space-y-4">
+            <h2 className="text-xl font-semibold text-destructive">Failed to Load Analytics</h2>
+            <p className="text-muted-foreground">{error || 'Unknown error occurred'}</p>
+            <Button onClick={refreshData}>Try Again</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6 w-full">
-      {/*   <SectionCards /> */}
-
+      {/* <SectionCards /> */}
+      <StatsCards data={data} />
       {/* Quick Actions */}
       <CrudCard
         title="Quick Actions"
