@@ -5,7 +5,7 @@ export const Logo = ({ className }: { className?: string }) => {
   return (
     <>
       <Image
-        src="/logo-light.png"
+        src="/linktrack.png"
         alt="LinkTrack Logo"
         className={cn("block dark:hidden h-8 w-auto", className)}
         width={120}
@@ -13,7 +13,7 @@ export const Logo = ({ className }: { className?: string }) => {
         priority
       />
       <Image
-        src="/logo-dark.png"
+        src="/linktrack.png"
         alt="LinkTrack Logo"
         className={cn("hidden dark:block h-8 w-auto", className)}
         width={120}
