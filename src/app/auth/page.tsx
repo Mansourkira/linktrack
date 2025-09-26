@@ -9,12 +9,28 @@ import { toast } from "sonner"
 import { LinkIcon } from "lucide-react"
 import Link from "next/link"
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { ActivityLogger } from "@/modules/analytics"
 
 export default function Page() {
   const [activeForm, setActiveForm] = useState<'login' | 'signup'>('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const router = useRouter()
   const supabase = createSupabaseBrowserClient()
+  const { user, loading: authCheckLoading } = useAuth()
+
+  // Check if user is already authenticated and redirect to dashboard
+  useEffect(() => {
+    if (!authCheckLoading && user) {
+      router.push('/dashboard')
+    } else if (!authCheckLoading && !user) {
+      setAuthLoading(false)
+    }
+  }, [user, authCheckLoading, router])
+
   useEffect(() => {
     // Check URL hash on component mount
     const hash = window.location.hash.slice(1) // Remove the # symbol
@@ -42,8 +58,12 @@ export default function Page() {
         toast.error(error.message)
         return
       }
+
+      // Log the login activity
+      await ActivityLogger.userLogin()
+
       toast.success('Logged in successfully!')
-      window.location.href = '/dashboard'
+      router.push('/dashboard')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
       setError(errorMessage)
@@ -83,7 +103,7 @@ export default function Page() {
       }
 
       toast.success('Account created successfully!')
-      window.location.href = '/dashboard'
+      router.push('/dashboard')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed'
       setError(errorMessage)
@@ -93,6 +113,21 @@ export default function Page() {
     }
   }
 
+
+  // Show loading screen while checking authentication
+  if (authLoading || authCheckLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-lg font-medium">Checking authentication...</span>
+          </div>
+          <p className="text-muted-foreground">Please wait while we verify your login status</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -149,7 +184,7 @@ export default function Page() {
       <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md">
           {/* Loading Message */}
-          {loading && (
+          {/*  {loading && (
             <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 p-4 text-center">
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2">
@@ -166,7 +201,7 @@ export default function Page() {
                 </p>
               </div>
             </div>
-          )}
+          )} */}
 
 
           {/* Form Container */}
