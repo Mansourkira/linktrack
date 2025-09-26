@@ -1,3 +1,4 @@
+
 "use client"
 
 import { IconFilter, IconSearch, IconRefresh, IconX } from "@tabler/icons-react"
@@ -41,7 +42,6 @@ export function ActivityLogsFilters({
     const hasActiveFilters =
         filters.dateRange !== '24h' ||
         filters.action !== 'all' ||
-        filters.deviceType !== 'all' ||
         filters.shortCode ||
         filters.searchQuery
 
@@ -51,8 +51,7 @@ export function ActivityLogsFilters({
 
     const clearFilter = (field: keyof ActivityLogFilters) => {
         const defaultValue = field === 'dateRange' ? '24h' :
-            field === 'action' ? 'all' :
-                field === 'deviceType' ? 'all' : ''
+            field === 'action' ? 'all' : ''
         onFiltersChange({ [field]: defaultValue })
     }
 
@@ -78,7 +77,7 @@ export function ActivityLogsFilters({
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-3">
                     {/* Date Range Filter */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Time Range</label>
@@ -115,27 +114,6 @@ export function ActivityLogsFilters({
                                 {availableActions.map(action => (
                                     <SelectItem key={action} value={action}>
                                         {formatActionName(action)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Device Type Filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Device Type</label>
-                        <Select
-                            value={filters.deviceType}
-                            onValueChange={(value: any) => onFiltersChange({ deviceType: value })}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All devices</SelectItem>
-                                {availableDeviceTypes.map(type => (
-                                    <SelectItem key={type} value={type}>
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -195,19 +173,6 @@ export function ActivityLogsFilters({
                                         size="sm"
                                         className="h-4 w-4 p-0 ml-1"
                                         onClick={() => clearFilter('action')}
-                                    >
-                                        <IconX className="h-3 w-3" />
-                                    </Button>
-                                </Badge>
-                            )}
-                            {filters.deviceType !== 'all' && (
-                                <Badge variant="secondary" className="gap-1">
-                                    Device: {filters.deviceType}
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-4 w-4 p-0 ml-1"
-                                        onClick={() => clearFilter('deviceType')}
                                     >
                                         <IconX className="h-3 w-3" />
                                     </Button>
