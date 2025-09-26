@@ -25,7 +25,7 @@ interface ActivityLogsFiltersProps {
     onFiltersChange: (filters: Partial<ActivityLogFilters>) => void
     onReset: () => void
     availableActions: ActivityAction[]
-    availableDeviceTypes: string[]
+    availableDeviceTypes: string[] // eslint-disable-line @typescript-eslint/no-unused-vars
     totalCount: number
     filteredCount: number
 }
@@ -35,7 +35,7 @@ export function ActivityLogsFilters({
     onFiltersChange,
     onReset,
     availableActions,
-    availableDeviceTypes,
+    availableDeviceTypes, // eslint-disable-line @typescript-eslint/no-unused-vars
     totalCount,
     filteredCount
 }: ActivityLogsFiltersProps) {
@@ -83,7 +83,7 @@ export function ActivityLogsFilters({
                         <label className="text-sm font-medium">Time Range</label>
                         <Select
                             value={filters.dateRange}
-                            onValueChange={(value: any) => onFiltersChange({ dateRange: value })}
+                            onValueChange={(value: string) => onFiltersChange({ dateRange: value as ActivityLogFilters['dateRange'] })}
                         >
                             <SelectTrigger>
                                 <SelectValue />
@@ -104,7 +104,7 @@ export function ActivityLogsFilters({
                         <label className="text-sm font-medium">Action Type</label>
                         <Select
                             value={filters.action}
-                            onValueChange={(value: any) => onFiltersChange({ action: value })}
+                            onValueChange={(value: string) => onFiltersChange({ action: value as ActivityAction })}
                         >
                             <SelectTrigger>
                                 <SelectValue />

@@ -135,7 +135,7 @@ function generateMockClickTrends(days: number) {
     return trends
 }
 
-function generateMockRecentActivity(links: any[]) {
+function generateMockRecentActivity(links: Array<{ id: string; shortCode: string; originalUrl: string }>) {
     const activities = []
     const actions = ['click', 'created', 'deleted', 'updated'] as const
 

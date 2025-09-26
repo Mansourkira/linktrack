@@ -1,6 +1,6 @@
 "use client"
 
-import { IconCopy, IconExternalLink, IconEye, IconEyeOff, IconLink, IconQrcode } from "@tabler/icons-react"
+import { IconCopy, IconExternalLink } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { ColumnDef } from "@tanstack/react-table"

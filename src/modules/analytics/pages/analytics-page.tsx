@@ -75,7 +75,7 @@ export function AnalyticsPage() {
                             <label className="text-sm font-medium">Date Range</label>
                             <Select
                                 value={filters.dateRange}
-                                onValueChange={(value: any) => updateFilters({ dateRange: value })}
+                                onValueChange={(value: '7d' | '30d' | '90d' | '1y' | 'all') => updateFilters({ dateRange: value })}
                             >
                                 <SelectTrigger className="w-40">
                                     <SelectValue />
@@ -93,7 +93,7 @@ export function AnalyticsPage() {
                             <label className="text-sm font-medium">Device Type</label>
                             <Select
                                 value={filters.deviceType}
-                                onValueChange={(value: any) => updateFilters({ deviceType: value })}
+                                onValueChange={(value: 'all' | 'desktop' | 'mobile' | 'tablet') => updateFilters({ deviceType: value })}
                             >
                                 <SelectTrigger className="w-40">
                                     <SelectValue />
@@ -110,7 +110,7 @@ export function AnalyticsPage() {
                             <label className="text-sm font-medium">Filter by Link</label>
                             <Select
                                 value={filters.linkId || "all"}
-                                onValueChange={(value: any) => updateFilters({ linkId: value === "all" ? null : value })}
+                                onValueChange={(value: string) => updateFilters({ linkId: value === "all" ? null : value })}
                             >
                                 <SelectTrigger className="w-40">
                                     <SelectValue />

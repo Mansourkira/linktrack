@@ -61,12 +61,23 @@ const iconMap = {
 import sidebarConfig from '../../sidebar-config.json'
 
 // Process the configuration to map icon strings to actual icon components
-const processConfig = (config: any) => {
-  const processNavItems = (items: any[]): any[] => {
-    return items?.map((item: any) => ({
+interface SidebarConfig {
+  company: {
+    name: string
+    logo: string
+  }
+  navMain: Array<Record<string, unknown>>
+  navClouds: Array<Record<string, unknown>>
+  navSecondary?: Array<Record<string, unknown>>
+  documents?: Array<Record<string, unknown>>
+}
+
+const processConfig = (config: SidebarConfig) => {
+  const processNavItems = (items: Array<Record<string, unknown>>): Array<Record<string, unknown>> => {
+    return items?.map((item: Record<string, unknown>) => ({
       ...item,
       icon: iconMap[item.icon as keyof typeof iconMap],
-      items: item.items ? processNavItems(item.items) : undefined
+      items: item.items ? processNavItems(item.items as Array<Record<string, unknown>>) : undefined
     }))
   }
 
@@ -74,8 +85,8 @@ const processConfig = (config: any) => {
     ...config,
     navMain: processNavItems(config.navMain),
     navClouds: processNavItems(config.navClouds),
-    navSecondary: processNavItems(config.navSecondary),
-    documents: processNavItems(config.documents)
+    navSecondary: config.navSecondary ? processNavItems(config.navSecondary) : [],
+    documents: config.documents ? processNavItems(config.documents) : []
   }
 }
 

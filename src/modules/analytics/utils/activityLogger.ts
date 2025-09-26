@@ -5,7 +5,7 @@ interface LogActivityParams {
     action: ActivityAction
     details: string
     shortCode?: string
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
     ipAddress?: string
     userAgent?: string
     referrer?: string
@@ -64,7 +64,7 @@ export const ActivityLogger = {
             metadata: { originalUrl }
         }),
 
-    linkUpdated: (shortCode: string, changes: Record<string, any>) =>
+    linkUpdated: (shortCode: string, changes: Record<string, unknown>) =>
         logActivity({
             action: 'link_updated',
             details: `Link "${shortCode}" was updated`,
@@ -79,7 +79,7 @@ export const ActivityLogger = {
             shortCode
         }),
 
-    linkClicked: (shortCode: string, metadata?: Record<string, any>) =>
+    linkClicked: (shortCode: string, metadata?: Record<string, unknown>) =>
         logActivity({
             action: 'link_clicked',
             details: `Link "${shortCode}" was clicked`,
@@ -136,7 +136,7 @@ export const ActivityLogger = {
             details: 'User logged out'
         }),
 
-    profileUpdated: (changes: Record<string, any>) =>
+    profileUpdated: (changes: Record<string, unknown>) =>
         logActivity({
             action: 'profile_updated',
             details: 'User profile was updated',

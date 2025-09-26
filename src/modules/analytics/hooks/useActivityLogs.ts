@@ -73,7 +73,7 @@ export function useActivityLogs() {
             const transformedLogs = (logs || []).map(log => ({
                 id: log.id,
                 shortCode: log.short_code || '',
-                action: log.action as any,
+                action: log.action as ActivityAction,
                 timestamp: log.created_at,
                 details: log.details,
                 metadata: log.metadata || {},

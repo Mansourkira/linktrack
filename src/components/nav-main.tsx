@@ -5,11 +5,7 @@ import { usePathname } from "next/navigation"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 interface NavMainProps {
-  items: {
-    title: string
-    url: string
-    icon?: any
-  }[]
+  items: Array<Record<string, unknown>>
   onNavigate?: (url: string) => void
   isNavigating?: boolean
 }
@@ -27,6 +23,7 @@ export function NavMain({ items, onNavigate, isNavigating }: NavMainProps) {
     <SidebarMenu>
       {items.map((item, index) => {
         const isActive = pathname === item.url
+        const IconComponent = item.icon as React.ComponentType<{ className?: string }>
         return (
           <SidebarMenuItem key={index}>
             <SidebarMenuButton
@@ -35,9 +32,9 @@ export function NavMain({ items, onNavigate, isNavigating }: NavMainProps) {
               isActive={isActive}
               className={isNavigating ? "opacity-50 cursor-pointer" : "cursor-pointer"}
             >
-              <Link href={item.url} onClick={() => handleClick(item.url)}>
-                {item.icon && <item.icon className="h-4 w-4" />}
-                <span>{item.title}</span>
+              <Link href={item.url as string} onClick={() => handleClick(item.url as string)}>
+                {IconComponent && <IconComponent className="h-4 w-4" />}
+                <span>{item.title as string}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

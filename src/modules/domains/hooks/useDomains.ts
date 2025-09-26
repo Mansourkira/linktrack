@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
-import type { Domain, CreateDomainData, DomainsState, DomainVerificationResult } from "../types"
+import type { Domain, CreateDomainData, DomainsState, DomainVerificationResult, DNSRecord } from "../types"
 
 export function useDomains() {
     const [state, setState] = useState<DomainsState>({
@@ -254,7 +254,7 @@ export function useDomains() {
         })
     }, [])
 
-    const updateFormData = useCallback((field: keyof CreateDomainData, value: any) => {
+    const updateFormData = useCallback((field: keyof CreateDomainData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }, [])
 
@@ -291,7 +291,7 @@ function isValidDomain(domain: string): boolean {
     return domainRegex.test(domain)
 }
 
-function generateDefaultDNSRecords(domain: string): any[] {
+function generateDefaultDNSRecords(_domain: string): DNSRecord[] {
     return [
         {
             type: 'CNAME',
