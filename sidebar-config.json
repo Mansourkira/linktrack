@@ -16,12 +16,17 @@
         },
         {
             "title": "Analytics",
-            "url": "/dashboard",
+            "url": "/dashboard/analytics",
             "icon": "IconChartBar"
         },
         {
+            "title": "Activity Logs",
+            "url": "/dashboard/analytics/activity-logs",
+            "icon": "IconReport"
+        },
+        {
             "title": "Domains",
-            "url": "/dashboard",
+            "url": "/dashboard/domains",
             "icon": "IconFolder"
         }
     ],
