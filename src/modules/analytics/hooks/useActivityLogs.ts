@@ -29,15 +29,65 @@ export function useActivityLogs() {
                 throw new Error('User not authenticated')
             }
 
-            // For now, we'll use mock data since activity logs table doesn't exist yet
-            // Contributors can implement the actual database integration
-            const mockLogs = generateMockActivityLogs(user.id, state.filters)
+            // Build query with filters
+            let query = supabase
+                .from('activity_logs')
+                .select('*', { count: 'exact' })
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+
+            // Apply date range filter
+            if (state.filters.dateRange !== 'all') {
+                const dateRange = getDateRange(state.filters.dateRange)
+                query = query.gte('created_at', dateRange.toISOString())
+            }
+
+            // Apply action filter
+            if (state.filters.action !== 'all') {
+                query = query.eq('action', state.filters.action)
+            }
+
+
+            // Apply short code filter
+            if (state.filters.shortCode) {
+                query = query.ilike('short_code', `%${state.filters.shortCode}%`)
+            }
+
+            // Apply search query filter
+            if (state.filters.searchQuery) {
+                query = query.or(`details.ilike.%${state.filters.searchQuery}%,short_code.ilike.%${state.filters.searchQuery}%`)
+            }
+
+            // Add pagination
+            const pageSize = 50
+            const offset = refresh ? 0 : state.logs.length
+            query = query.range(offset, offset + pageSize - 1)
+
+            const { data: logs, error: fetchError, count } = await query
+
+            if (fetchError) {
+                throw new Error(fetchError.message)
+            }
+
+            // Transform the data to match our interface
+            const transformedLogs = (logs || []).map(log => ({
+                id: log.id,
+                shortCode: log.short_code || '',
+                action: log.action as any,
+                timestamp: log.created_at,
+                details: log.details,
+                metadata: log.metadata || {},
+                userId: log.user_id,
+                ipAddress: log.ip_address,
+                userAgent: log.user_agent || '',
+                referrer: log.referrer
+            }))
 
             setState(prev => ({
                 ...prev,
-                logs: refresh ? mockLogs : [...prev.logs, ...mockLogs],
-                totalCount: mockLogs.length,
-                hasMore: mockLogs.length >= 50, // Mock pagination
+                logs: refresh ? transformedLogs : [...prev.logs, ...transformedLogs],
+                totalCount: count || 0,
+                hasMore: (logs?.length || 0) >= pageSize,
                 isLoading: false
             }))
         } catch (error) {
@@ -48,7 +98,7 @@ export function useActivityLogs() {
                 isLoading: false
             }))
         }
-    }, [state.filters])
+    }, [state.filters, state.logs.length])
 
     const updateFilters = useCallback((newFilters: Partial<ActivityLogFilters>) => {
         setState(prev => ({
@@ -77,40 +127,8 @@ export function useActivityLogs() {
         fetchActivityLogs(true)
     }, [fetchActivityLogs])
 
-    // Filter logs based on current filters
-    const filteredLogs = useMemo(() => {
-        let logs = state.logs
-
-        // Filter by action
-        if (state.filters.action !== 'all') {
-            logs = logs.filter(log => log.action === state.filters.action)
-        }
-
-        // Filter by device type
-        if (state.filters.deviceType !== 'all') {
-            logs = logs.filter(log => log.metadata.deviceType === state.filters.deviceType)
-        }
-
-        // Filter by short code
-        if (state.filters.shortCode) {
-            logs = logs.filter(log =>
-                log.shortCode.toLowerCase().includes(state.filters.shortCode!.toLowerCase())
-            )
-        }
-
-        // Filter by search query
-        if (state.filters.searchQuery) {
-            const query = state.filters.searchQuery.toLowerCase()
-            logs = logs.filter(log =>
-                log.shortCode.toLowerCase().includes(query) ||
-                log.details.toLowerCase().includes(query) ||
-                log.metadata.browser?.toLowerCase().includes(query) ||
-                log.metadata.os?.toLowerCase().includes(query)
-            )
-        }
-
-        return logs
-    }, [state.logs, state.filters])
+    // Since we're filtering in the database query, filteredLogs is just the current logs
+    const filteredLogs = state.logs
 
     // Get unique actions for filter dropdown
     const availableActions = useMemo(() => {
@@ -119,16 +137,10 @@ export function useActivityLogs() {
         return Array.from(actions).sort()
     }, [state.logs])
 
-    // Get unique device types for filter dropdown
+    // Get unique device types for filter dropdown (keeping for compatibility but not used)
     const availableDeviceTypes = useMemo(() => {
-        const types = new Set<string>()
-        state.logs.forEach(log => {
-            if (log.metadata.deviceType) {
-                types.add(log.metadata.deviceType)
-            }
-        })
-        return Array.from(types).sort()
-    }, [state.logs])
+        return []
+    }, [])
 
     useEffect(() => {
         fetchActivityLogs(true)
@@ -146,88 +158,23 @@ export function useActivityLogs() {
     }
 }
 
-// Mock data generators - contributors can replace these with real implementations
-function generateMockActivityLogs(userId: string, filters: ActivityLogFilters): ActivityLog[] {
-    const actions: ActivityAction[] = [
-        'link_created', 'link_updated', 'link_deleted', 'link_clicked',
-        'link_activated', 'link_deactivated', 'domain_added', 'domain_verified',
-        'profile_updated', 'login', 'logout'
-    ]
-
-    const deviceTypes = ['desktop', 'mobile', 'tablet', 'unknown']
-    const browsers = ['Chrome', 'Firefox', 'Safari', 'Edge']
-    const os = ['Windows', 'macOS', 'Linux', 'iOS', 'Android']
-    const countries = ['US', 'CA', 'UK', 'DE', 'FR', 'JP', 'AU']
-    const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney']
-
-    const logs: ActivityLog[] = []
+// Helper function to get date range for filtering
+function getDateRange(dateRange: string): Date {
     const now = new Date()
-
-    for (let i = 0; i < 50; i++) {
-        const action = actions[Math.floor(Math.random() * actions.length)]
-        const deviceType = deviceTypes[Math.floor(Math.random() * deviceTypes.length)] as any
-        const timestamp = new Date(now.getTime() - Math.random() * getTimeRange(filters.dateRange))
-
-        logs.push({
-            id: `log-${Date.now()}-${i}`,
-            shortCode: generateRandomShortCode(),
-            action,
-            timestamp: timestamp.toISOString(),
-            details: getActionDescription(action),
-            metadata: {
-                linkId: Math.random() > 0.3 ? `link-${Math.random().toString(36).substr(2, 9)}` : undefined,
-                deviceType,
-                browser: browsers[Math.floor(Math.random() * browsers.length)],
-                os: os[Math.floor(Math.random() * os.length)],
-                country: countries[Math.floor(Math.random() * countries.length)],
-                city: cities[Math.floor(Math.random() * cities.length)],
-                clickCount: action === 'link_clicked' ? Math.floor(Math.random() * 100) + 1 : undefined
-            },
-            userId,
-            ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            referrer: Math.random() > 0.5 ? 'https://google.com' : undefined
-        })
-    }
-
-    return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-}
-
-function generateRandomShortCode(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let result = ''
-    for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return result
-}
-
-function getTimeRange(dateRange: string): number {
     switch (dateRange) {
-        case '1h': return 60 * 60 * 1000
-        case '24h': return 24 * 60 * 60 * 1000
-        case '7d': return 7 * 24 * 60 * 60 * 1000
-        case '30d': return 30 * 24 * 60 * 60 * 1000
-        case '90d': return 90 * 24 * 60 * 60 * 1000
-        case 'all': return 365 * 24 * 60 * 60 * 1000
-        default: return 24 * 60 * 60 * 1000
-    }
-}
-
-function getActionDescription(action: ActivityAction): string {
-    switch (action) {
-        case 'link_created': return 'New link was created'
-        case 'link_updated': return 'Link was updated'
-        case 'link_deleted': return 'Link was deleted'
-        case 'link_clicked': return 'Link was clicked'
-        case 'link_activated': return 'Link was activated'
-        case 'link_deactivated': return 'Link was deactivated'
-        case 'domain_added': return 'New domain was added'
-        case 'domain_verified': return 'Domain was verified'
-        case 'domain_deleted': return 'Domain was deleted'
-        case 'profile_updated': return 'Profile was updated'
-        case 'login': return 'User logged in'
-        case 'logout': return 'User logged out'
-        default: return 'Action performed'
+        case '1h':
+            return new Date(now.getTime() - 60 * 60 * 1000)
+        case '24h':
+            return new Date(now.getTime() - 24 * 60 * 60 * 1000)
+        case '7d':
+            return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        case '30d':
+            return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        case '90d':
+            return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+        case 'all':
+            return new Date(0) // Beginning of time
+        default:
+            return new Date(now.getTime() - 24 * 60 * 60 * 1000)
     }
 }
