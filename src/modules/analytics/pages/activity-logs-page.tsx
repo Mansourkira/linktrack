@@ -1,10 +1,9 @@
 "use client"
 
-import { IconArrowLeft, IconRefresh, IconDownload, IconActivity } from "@tabler/icons-react"
+import { IconRefresh, IconDownload, IconActivity } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 
 import { useActivityLogs } from "../hooks/useActivityLogs"
 import { ActivityLogsFilters } from "../components/activity-logs-filters"
@@ -44,16 +43,9 @@ export function ActivityLogsPage() {
         <div className="space-y-6 p-6 w-full">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Link href="/dashboard/analytics">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <IconArrowLeft className="h-4 w-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-semibold">Activity Logs</h1>
-                        <p className="text-muted-foreground">Monitor all activities and user interactions</p>
-                    </div>
+                <div>
+                    <h1 className="text-2xl font-semibold">Activity Logs</h1>
+                    <p className="text-muted-foreground">Monitor all activities and user interactions</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={refreshLogs}>
@@ -68,7 +60,7 @@ export function ActivityLogsPage() {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Logs</CardTitle>
@@ -107,13 +99,18 @@ export function ActivityLogsPage() {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Device Types</CardTitle>
+                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
                         <IconActivity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{availableDeviceTypes.length}</div>
+                        <div className="text-2xl font-bold">
+                            {filteredLogs.length > 0 ?
+                                new Date(filteredLogs[0].timestamp).toLocaleDateString() :
+                                'N/A'
+                            }
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            Different device categories
+                            Latest activity date
                         </p>
                     </CardContent>
                 </Card>
