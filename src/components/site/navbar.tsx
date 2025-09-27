@@ -80,7 +80,7 @@ export function Navbar() {
                   <div className="flex flex-col gap-3 pt-6 border-t">
 
                     <Button size="lg" asChild>
-                      <Link href="/signup" onClick={() => setIsOpen(false)}>
+                      <Link href="/auth" onClick={() => setIsOpen(false)}>
                         Get started
                       </Link>
                     </Button>

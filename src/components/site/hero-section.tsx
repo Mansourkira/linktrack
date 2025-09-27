@@ -59,7 +59,7 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
           >
             <Button size="lg" className="group" asChild>
-              <Link href="/signup">
+              <Link href="/auth">
                 Get started
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
