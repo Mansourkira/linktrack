@@ -69,7 +69,7 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6 p-6 w-full">
       {/* <SectionCards /> */}
       <StatsCards data={data} />
       {/* Quick Actions */}
