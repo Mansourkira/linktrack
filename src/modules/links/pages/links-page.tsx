@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button"
 import { CrudCard } from "@/components/ui/crud-card"
 import { DataTable } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
+import { ViewSwitcher } from "@/components/ui/view-switcher"
 import Link from "next/link"
+import { useState } from "react"
 
 import { useLinks } from "../hooks/useLinks"
 import { createLinkColumns } from "../components/table-columns"
 import { CreateLinkForm } from "../components/create-link-form"
 import { RowActions } from "../components/row-actions"
+import { LinksCardView } from "../components/links-card-view"
 import { getBaseUrl } from "../config"
 import type { Link as LinkType } from "../types"
 
@@ -29,6 +32,9 @@ export function LinksPage() {
         updateFormData,
         toggleCreateDialog,
     } = useLinks()
+
+    const [view, setView] = useState<"table" | "card">("table")
+    const [searchTerm, setSearchTerm] = useState("")
 
     const columns = createLinkColumns(copyToClipboard, toggleLinkStatus)
 
@@ -93,18 +99,17 @@ export function LinksPage() {
                 </div>
             )}
 
-            {/* Links Table */}
-            <CrudCard
-                title="Links Management"
-                description="Create and manage your short links"
-            >
-                <DataTable
-                    data={links}
-                    columns={columns}
-                    searchKey="originalUrl"
-                    searchPlaceholder="Search links..."
-                    rowActions={rowActions}
-                    toolbar={
+            {/* Links Management */}
+            <CrudCard>
+                <div className="space-y-4">
+                    {/* Toolbar with View Switcher */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-2">
+                            <ViewSwitcher
+                                view={view}
+                                onViewChange={setView}
+                            />
+                        </div>
                         <CreateLinkForm
                             isOpen={isCreateDialogOpen}
                             onOpenChange={toggleCreateDialog}
@@ -114,11 +119,32 @@ export function LinksPage() {
                             isSubmitting={isOperationLoading}
                             onReset={resetForm}
                         />
-                    }
-                    emptyState={emptyState}
-                    pagination={true}
-                    pageSize={10}
-                />
+                    </div>
+
+                    {/* Content based on view */}
+                    {view === "table" ? (
+                        <DataTable
+                            data={links}
+                            columns={columns}
+                            searchKey="originalUrl"
+                            searchPlaceholder="Search links..."
+                            rowActions={rowActions}
+                            emptyState={emptyState}
+                            pagination={true}
+                            pageSize={10}
+                        />
+                    ) : (
+                        <LinksCardView
+                            links={links}
+                            onCopy={copyToClipboard}
+                            onDelete={deleteLink}
+                            searchTerm={searchTerm}
+                            onSearchChange={setSearchTerm}
+                            searchPlaceholder="Search links..."
+                            emptyState={emptyState}
+                        />
+                    )}
+                </div>
             </CrudCard>
         </div>
     )

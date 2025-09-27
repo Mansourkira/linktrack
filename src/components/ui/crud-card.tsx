@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 
 interface CrudCardProps {
-    title: string
+    title?: string
     description?: string
     actions?: React.ReactNode
     children: React.ReactNode
