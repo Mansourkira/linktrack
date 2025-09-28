@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { IconClock, IconRocket, IconCheck } from "@tabler/icons-react"
+import { IconClock, IconRocket, IconCheck, IconBrandGithub } from "@tabler/icons-react"
 import Link from "next/link"
 
 interface ComingSoonProps {
@@ -20,7 +20,7 @@ export const ComingSoon = ({
   showContact = false
 }: ComingSoonProps) => {
   return (
-    <div className="flex items-center justify-center py-12">
+    <div className="flex items-center justify-center">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -51,6 +51,11 @@ export const ComingSoon = ({
             <div className="flex items-center justify-center gap-2 rounded-lg bg-muted/50 p-4">
               <IconClock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Feature in development</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-3">
+              <IconBrandGithub className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Contributions welcome on GitHub</span>
             </div>
           </CardContent>
         )}
