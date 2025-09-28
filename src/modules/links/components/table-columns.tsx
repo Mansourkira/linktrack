@@ -18,25 +18,30 @@ export const createLinkColumns = (
                 const shortCode = row.getValue("shortCode") as string
                 const shortUrl = getShortUrl(shortCode)
                 return (
-                    <div className="flex items-center gap-2 group">
-                        <a
-                            href={shortUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                            onClick={(e) => e.stopPropagation()}
-                        >
+                    <div className="flex items-center gap-3 group">
+                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-md font-mono text-sm font-semibold shadow-sm">
                             {shortCode}
-                        </a>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(shortUrl)}
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Copy short URL"
-                        >
-                            <IconCopy className="h-3 w-3" />
-                        </Button>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyToClipboard(shortUrl)}
+                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-50"
+                                title="Copy short URL"
+                            >
+                                <IconCopy className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(shortUrl, '_blank')}
+                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-green-50"
+                                title="Open short URL"
+                            >
+                                <IconExternalLink className="h-3.5 w-3.5" />
+                            </Button>
+                        </div>
                     </div>
                 )
             },
@@ -67,11 +72,28 @@ export const createLinkColumns = (
         {
             accessorKey: "clickCount",
             header: "Clicks",
-            cell: ({ row }) => (
-                <Badge variant="secondary" className="font-mono">
-                    {row.getValue("clickCount")}
-                </Badge>
-            ),
+            cell: ({ row }) => {
+                const clickCount = row.getValue("clickCount") as number
+                return (
+                    <div className="flex items-center gap-2">
+                        <Badge
+                            variant="secondary"
+                            className={`font-mono font-semibold ${clickCount === 0 ? 'bg-gray-100 text-gray-600' :
+                                    clickCount < 5 ? 'bg-blue-100 text-blue-700' :
+                                        clickCount < 20 ? 'bg-yellow-100 text-yellow-700' :
+                                            'bg-green-100 text-green-700'
+                                }`}
+                        >
+                            {clickCount}
+                        </Badge>
+                        {clickCount > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                                {clickCount < 5 ? 'Low' : clickCount < 20 ? 'Medium' : 'High'}
+                            </span>
+                        )}
+                    </div>
+                )
+            },
         },
         {
             accessorKey: "isActive",
@@ -84,7 +106,10 @@ export const createLinkColumns = (
                     <div className="flex items-center gap-2">
                         <Badge
                             variant={isActive ? "default" : "secondary"}
-                            className={`cursor-pointer ${toggleLinkStatus ? 'hover:opacity-80' : ''}`}
+                            className={`cursor-pointer font-semibold ${isActive
+                                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                } ${toggleLinkStatus ? 'hover:opacity-80' : ''}`}
                             onClick={() => toggleLinkStatus?.(linkId)}
                             title={toggleLinkStatus ? "Click to toggle status" : ""}
                         >
@@ -103,7 +128,10 @@ export const createLinkColumns = (
                     <div className="flex items-center">
                         <Badge
                             variant={isProtected ? "default" : "secondary"}
-                            className={`text-xs ${isProtected ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}
+                            className={`text-xs font-semibold ${isProtected
+                                    ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
                         >
                             {isProtected ? "ON" : "OFF"}
                         </Badge>
