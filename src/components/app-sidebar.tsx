@@ -32,9 +32,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 
 // Icon mapping for dynamic icon loading
@@ -81,9 +87,16 @@ const processConfig = (config: SidebarConfig) => {
     }))
   }
 
+  const processNavSections = (sections: Array<Record<string, unknown>>): Array<Record<string, unknown>> => {
+    return sections?.map((section: Record<string, unknown>) => ({
+      ...section,
+      items: processNavItems(section.items as Array<Record<string, unknown>>)
+    }))
+  }
+
   return {
     ...config,
-    navMain: processNavItems(config.navMain),
+    navMain: processNavSections(config.navMain),
     navClouds: processNavItems(config.navClouds),
     navSecondary: config.navSecondary ? processNavItems(config.navSecondary) : [],
     documents: config.documents ? processNavItems(config.documents) : []
@@ -91,6 +104,30 @@ const processConfig = (config: SidebarConfig) => {
 }
 
 const data = processConfig(sidebarConfig)
+
+// Component to render sectioned navigation
+function SectionedNavMain({ sections, onNavigate, isNavigating }: {
+  sections: Array<Record<string, unknown>>
+  onNavigate: (url: string) => void
+  isNavigating: boolean
+}) {
+  return (
+    <>
+      {sections.map((section: any, index: number) => (
+        <SidebarGroup key={section.section}>
+          <SidebarGroupLabel>{section.section}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavMain
+              items={section.items}
+              onNavigate={onNavigate}
+              isNavigating={isNavigating}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </>
+  )
+}
 
 // Search component that shows/hides based on sidebar state
 function SidebarSearch() {
@@ -104,18 +141,31 @@ function SidebarSearch() {
   }
 
   if (state === "collapsed") {
-    return null
+    return (
+      <div className="px-2 py-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-9 w-full">
+              <IconSearch className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Search</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    )
   }
 
   return (
-    <div className="px-3 py-2">
+    <div className="px-2 py-2">
       <form onSubmit={handleSearch} className="relative">
         <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 h-9 bg-sidebar-accent border-sidebar-accent-foreground/20 text-sidebar-accent-foreground placeholder:text-sidebar-accent-foreground/60"
+          className="pl-9 h-9 w-full bg-sidebar-accent border-sidebar-accent-foreground/20 text-sidebar-accent-foreground placeholder:text-sidebar-accent-foreground/60"
         />
       </form>
     </div>
@@ -144,12 +194,12 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild tooltip={data.company.name}>
               <Link href="/dashboard" className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <IconInnerShadowTop className="h-4 w-4" />
                 </div>
-                <span className="font-bold">{data.company.name}</span>
+                <span className="font-bold group-data-[collapsible=icon]:hidden">{data.company.name}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -157,8 +207,15 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarSearch />
-        <NavMain items={data.navMain} onNavigate={handleNavigation} isNavigating={isNavigating} />
-        <NavSecondary items={data.navSecondary} onNavigate={handleNavigation} isNavigating={isNavigating} />
+        <SidebarSeparator />
+        <SectionedNavMain sections={data.navMain} onNavigate={handleNavigation} isNavigating={isNavigating} />
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <NavSecondary items={data.navSecondary} onNavigate={handleNavigation} isNavigating={isNavigating} />
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
