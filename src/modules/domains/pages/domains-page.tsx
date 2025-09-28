@@ -75,68 +75,12 @@ export function DomainsPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-semibold">Domain Management</h1>
-                        <p className="text-muted-foreground">Manage custom domains for your links</p>
+                        <h1 className="text-2xl font-semibold">Domains</h1>
+                        <p className="text-muted-foreground">Manage your domains</p>
                     </div>
                 </div>
-                <Dialog open={isCreateDialogOpen} onOpenChange={toggleCreateDialog}>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <IconPlus className="mr-2 h-4 w-4" />
-                            Add Domain
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Add New Domain</DialogTitle>
-                            <DialogDescription>
-                                Add a custom domain to use with your short links
-                            </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={createDomain} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="domain">Domain Name</Label>
-                                <Input
-                                    id="domain"
-                                    placeholder="example.com"
-                                    value={formData.domain}
-                                    onChange={(e) => updateFormData("domain", e.target.value)}
-                                    required
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                    Enter your domain without http:// or www
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-0.5">
-                                    <Label htmlFor="isActive">Active</Label>
-                                    <div className="text-sm text-muted-foreground">
-                                        Enable this domain immediately
-                                    </div>
-                                </div>
-                                <Switch
-                                    id="isActive"
-                                    checked={formData.isActive}
-                                    onCheckedChange={(checked) => updateFormData("isActive", checked)}
-                                />
-                            </div>
-                            <div className="flex items-center justify-end gap-2 pt-4">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => toggleCreateDialog(false)}
-                                    disabled={isOperationLoading}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" disabled={isOperationLoading}>
-                                    {isOperationLoading ? "Adding..." : "Add Domain"}
-                                </Button>
-                            </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
             </div>
+
 
             {/* Domains List */}
             <div className="space-y-4">
