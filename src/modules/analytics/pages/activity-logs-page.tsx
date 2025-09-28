@@ -1,6 +1,6 @@
 "use client"
 
-import { IconRefresh, IconDownload, IconActivity } from "@tabler/icons-react"
+import { IconRefresh, IconDownload, IconActivity, IconArrowLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { useActivityLogs } from "../hooks/useActivityLogs"
 import { ActivityLogsFilters } from "../components/activity-logs-filters"
 import { ActivityLogsTable } from "../components/activity-logs-table"
+import Link from "next/link"
 
 export function ActivityLogsPage() {
     const {
@@ -43,19 +44,16 @@ export function ActivityLogsPage() {
         <div className="space-y-6 p-6 w-full">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold">Activity Logs</h1>
-                    <p className="text-muted-foreground">Monitor all activities and user interactions</p>
-                </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={refreshLogs}>
-                        <IconRefresh className="mr-2 h-4 w-4" />
-                        Refresh
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <IconDownload className="mr-2 h-4 w-4" />
-                        Export
-                    </Button>
+                    <Link href="/dashboard">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <IconArrowLeft className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-semibold">Activity Logs</h1>
+                        <p className="text-muted-foreground">Monitor all activities and user interactions</p>
+                    </div>
                 </div>
             </div>
 
