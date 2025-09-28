@@ -64,6 +64,24 @@ export function LinksPage() {
         </div>
     )
 
+    const toolbarContent = (
+        <div className="flex items-center gap-2">
+            <ViewSwitcher
+                view={view}
+                onViewChange={setView}
+            />
+            <CreateLinkForm
+                isOpen={isCreateDialogOpen}
+                onOpenChange={toggleCreateDialog}
+                formData={formData}
+                onFormDataChange={updateFormData}
+                onSubmit={createLink}
+                isSubmitting={isOperationLoading}
+                onReset={resetForm}
+            />
+        </div>
+    )
+
     return (
         <div className="space-y-6 p-6 w-full">
             {/* Header */}
@@ -101,39 +119,38 @@ export function LinksPage() {
 
             {/* Links Management */}
             <CrudCard>
-                <div className="space-y-4">
-                    {/* Toolbar with View Switcher */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-2">
-                            <ViewSwitcher
-                                view={view}
-                                onViewChange={setView}
+                {/* Content based on view */}
+                {view === "table" ? (
+                    <DataTable
+                        data={links}
+                        columns={columns}
+                        searchKey="originalUrl"
+                        searchPlaceholder="Search links..."
+                        toolbar={toolbarContent}
+                        rowActions={rowActions}
+                        emptyState={emptyState}
+                        pagination={true}
+                        pageSize={10}
+                    />
+                ) : (
+                    <div className="space-y-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-2">
+                                <ViewSwitcher
+                                    view={view}
+                                    onViewChange={setView}
+                                />
+                            </div>
+                            <CreateLinkForm
+                                isOpen={isCreateDialogOpen}
+                                onOpenChange={toggleCreateDialog}
+                                formData={formData}
+                                onFormDataChange={updateFormData}
+                                onSubmit={createLink}
+                                isSubmitting={isOperationLoading}
+                                onReset={resetForm}
                             />
                         </div>
-                        <CreateLinkForm
-                            isOpen={isCreateDialogOpen}
-                            onOpenChange={toggleCreateDialog}
-                            formData={formData}
-                            onFormDataChange={updateFormData}
-                            onSubmit={createLink}
-                            isSubmitting={isOperationLoading}
-                            onReset={resetForm}
-                        />
-                    </div>
-
-                    {/* Content based on view */}
-                    {view === "table" ? (
-                        <DataTable
-                            data={links}
-                            columns={columns}
-                            searchKey="originalUrl"
-                            searchPlaceholder="Search links..."
-                            rowActions={rowActions}
-                            emptyState={emptyState}
-                            pagination={true}
-                            pageSize={10}
-                        />
-                    ) : (
                         <LinksCardView
                             links={links}
                             onCopy={copyToClipboard}
@@ -143,8 +160,8 @@ export function LinksPage() {
                             searchPlaceholder="Search links..."
                             emptyState={emptyState}
                         />
-                    )}
-                </div>
+                    </div>
+                )}
             </CrudCard>
         </div>
     )
