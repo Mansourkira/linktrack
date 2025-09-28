@@ -140,21 +140,9 @@ function SidebarSearch() {
     console.log("Searching for:", searchQuery)
   }
 
+  // Hide search completely when collapsed
   if (state === "collapsed") {
-    return (
-      <div className="px-2 py-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-full">
-              <IconSearch className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Search</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    )
+    return null
   }
 
   return (
@@ -195,11 +183,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={data.company.name}>
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <IconInnerShadowTop className="h-4 w-4" />
+              <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 transition-all duration-200">
+                  <IconInnerShadowTop className="h-4 w-4 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5 transition-all duration-200" />
                 </div>
-                <span className="font-bold group-data-[collapsible=icon]:hidden">{data.company.name}</span>
+                <span className="font-bold group-data-[collapsible=icon]:hidden transition-all duration-200">{data.company.name}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -207,7 +195,9 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarSearch />
-        <SidebarSeparator />
+        <div className="group-data-[collapsible=icon]:hidden">
+          <SidebarSeparator />
+        </div>
         <SectionedNavMain sections={data.navMain} onNavigate={handleNavigation} isNavigating={isNavigating} />
         <SidebarSeparator />
         <SidebarGroup>
