@@ -65,7 +65,7 @@ export function HeroSection() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="group bg-transparent" asChild>
-              <Link href="/demo">
+              <Link href="/auth">
                 <Play className="mr-2 h-4 w-4" />
                 Live demo
               </Link>

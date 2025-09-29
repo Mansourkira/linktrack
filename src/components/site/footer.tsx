@@ -43,10 +43,10 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <LinkIcon className="h-4 w-4" />
               </div>
-              Links Pages
+              LinkTrack
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Turn your links into a delightful, branded page. Build, customize, and share your bio link in minutes.
+              Track your links and get insights on your traffic.
             </p>
           </div>
 
@@ -121,7 +121,7 @@ export function Footer() {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 mt-8 border-t gap-4">
-          <p className="text-sm text-muted-foreground">© {currentYear} Links Pages. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© {currentYear} LinkTrack. All rights reserved.</p>
           <div className="flex items-center gap-4">
             {socialLinks.map((link) => (
               <Link

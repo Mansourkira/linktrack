@@ -6,7 +6,7 @@ import { Section } from "./section"
 const testimonials = [
   {
     quote:
-      "Links Pages transformed how I share my content. The analytics alone have helped me understand my audience so much better.",
+      "LinkTrack transformed how I share my content. The analytics alone have helped me understand my audience so much better.",
     author: "Sarah Chen",
     role: "Content Creator",
     company: "YouTube",
@@ -29,7 +29,7 @@ const testimonials = [
   },
   {
     quote:
-      "I've tried every link-in-bio tool out there. Links Pages is the only one that feels professional and actually converts.",
+      "I've tried every link-in-bio tool out there. LinkTrack is the only one that feels professional and actually converts.",
     author: "David Kim",
     role: "Entrepreneur",
     company: "TechStart",

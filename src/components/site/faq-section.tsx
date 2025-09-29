@@ -5,9 +5,9 @@ import { Section } from "./section"
 
 const faqs = [
   {
-    question: "How is Links Pages different from other link-in-bio tools?",
+    question: "How is LinkTrack different from other link-in-bio tools?",
     answer:
-      "Links Pages focuses on beautiful design, powerful analytics, and professional features like custom domains and team collaboration. We're built for creators and businesses who want more than just a basic link list.",
+      "LinkTrack focuses on beautiful design, powerful analytics, and professional features like custom domains and team collaboration. We're built for creators and businesses who want more than just a basic link list.",
   },
   {
     question: "Can I use my own domain?",
@@ -42,7 +42,7 @@ export function FAQSection() {
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently asked questions</h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Everything you need to know about Links Pages. Can't find the answer you're looking for? Contact our support
+          Everything you need to know about LinkTrack. Can't find the answer you're looking for? Contact our support
           team.
         </p>
       </div>
