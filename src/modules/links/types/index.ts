@@ -13,6 +13,7 @@ export interface CreateLinkFormData {
     originalUrl: string
     shortCode: string
     isPasswordProtected: boolean
+    password?: string
     isActive: boolean
 }
 
