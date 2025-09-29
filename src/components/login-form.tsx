@@ -81,10 +81,10 @@ export function LoginForm({
             <Button type="submit" className="w-full h-11" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
-            <Button variant="outline" className="w-full h-11" disabled={isLoading}>
+            {/*   <Button variant="outline" className="w-full h-11" disabled={isLoading}>
               <IconBrandGoogle className="mr-2 h-4 w-4" />
               Continue with Google
-            </Button>
+            </Button> */}
           </div>
         </div>
 
