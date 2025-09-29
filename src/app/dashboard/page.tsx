@@ -120,7 +120,10 @@ export default function Page() {
         </div>
       </CrudCard>
 
-      <ChartAreaInteractive />
+      <ChartAreaInteractive
+        filters={filters}
+        onTimeRangeChange={(timeRange) => updateFilters({ dateRange: timeRange as any })}
+      />
     </div>
   )
 }
