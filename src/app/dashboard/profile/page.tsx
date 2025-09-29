@@ -19,7 +19,7 @@ import { toast } from "sonner"
 import { useProfile } from "@/hooks/useProfile"
 
 export default function ProfilePage() {
-    const { profile, loading: isLoading, updateProfile, refreshProfile } = useProfile()
+    const { profile, loading: isLoading, updateProfile, uploadAvatar, removeAvatar: removeAvatarFromHook } = useProfile()
     const [isSaving, setIsSaving] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
     const [formData, setFormData] = useState({
@@ -73,36 +73,15 @@ export default function ProfilePage() {
         }
     }
 
-    const uploadAvatar = async (): Promise<string | null> => {
-        if (!avatarFile || !profile) return null
+    const handleAvatarUpload = async (): Promise<string | null> => {
+        if (!avatarFile) return null
 
         try {
             setIsUploading(true)
-
-            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
-            const supabase = createSupabaseBrowserClient()
-
-            // Generate unique filename
-            const fileExt = avatarFile.name.split('.').pop()
-            const fileName = `${profile.id}-${Date.now()}.${fileExt}`
-            const filePath = `avatars/${fileName}`
-
-            // Upload to Supabase Storage
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, avatarFile)
-
-            if (uploadError) throw uploadError
-
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath)
-
-            return publicUrl
+            const uploadedUrl = await uploadAvatar(avatarFile)
+            return uploadedUrl
         } catch (error) {
             console.error('Error uploading avatar:', error)
-            toast.error('Failed to upload avatar')
             return null
         } finally {
             setIsUploading(false)
@@ -121,9 +100,12 @@ export default function ProfilePage() {
             // Upload avatar first if there's a new one
             let avatarUrl = profile.avatarUrl
             if (avatarFile) {
-                const uploadedUrl = await uploadAvatar()
+                const uploadedUrl = await handleAvatarUpload()
                 if (uploadedUrl) {
                     avatarUrl = uploadedUrl
+                } else {
+                    // If avatar upload failed, don't proceed with profile update
+                    return
                 }
             }
 
@@ -142,41 +124,20 @@ export default function ProfilePage() {
             toast.success('Profile updated successfully!')
         } catch (error) {
             console.error('Error updating profile:', error)
-            toast.error('Failed to update profile')
+            // Error handling is now done in the hook, so we don't need to show toast here
         } finally {
             setIsSaving(false)
         }
     }
 
-    const removeAvatar = async () => {
+    const handleRemoveAvatar = async () => {
         try {
-            if (!profile?.avatarUrl) return
-
-            const { createSupabaseBrowserClient } = await import('@/lib/supabase/client')
-            const supabase = createSupabaseBrowserClient()
-
-            // Remove from storage if it's a custom upload
-            if (profile.avatarUrl.includes('avatars/')) {
-                const filePath = profile.avatarUrl.split('/').pop()
-                if (filePath) {
-                    await supabase.storage
-                        .from('avatars')
-                        .remove([`avatars/${filePath}`])
-                }
-            }
-
-            // Update profile using the hook
-            await updateProfile({
-                avatarUrl: null
-            })
-
+            await removeAvatarFromHook()
             setAvatarPreview(null)
             setAvatarFile(null)
-
-            toast.success('Avatar removed successfully!')
         } catch (error) {
             console.error('Error removing avatar:', error)
-            toast.error('Failed to remove avatar')
+            // Error handling is now done in the hook
         }
     }
 
@@ -253,7 +214,7 @@ export default function ProfilePage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={removeAvatar}
+                                            onClick={handleRemoveAvatar}
                                             className="text-destructive hover:text-destructive"
                                         >
                                             <IconX className="mr-2 h-4 w-4" />
