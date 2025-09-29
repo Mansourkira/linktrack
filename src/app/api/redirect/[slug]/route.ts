@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { verifyPassword } from '@/lib/utils/password'
 
 // Edge runtime for ultra-fast responses
-export const runtime = 'edge'
+// Note: Edge runtime doesn't support bcrypt, so we'll use Node.js runtime for password verification
+// export const runtime = 'edge'
 
 
 export async function GET(
@@ -13,7 +15,7 @@ export async function GET(
     const host = request.headers.get('host') || ''
 
     try {
-        const supabase = createSupabaseBrowserClient()
+        const supabase = await createSupabaseServerClient()
 
         // Check if this is a custom domain or primary domain
         let domainId: string | null = null
@@ -70,11 +72,13 @@ export async function GET(
             return NextResponse.redirect(new URL('/expired', request.url))
         }
 
-        // If password protected, redirect to verification page
+        // If password protected, return JSON response indicating password is required
         if (link.isPasswordProtected) {
-            const verifyUrl = new URL(`/verify/${slug}`, request.url)
-            verifyUrl.searchParams.set('domain', host)
-            return NextResponse.redirect(verifyUrl)
+            return NextResponse.json({
+                error: 'password_required',
+                message: 'This link is password protected',
+                slug: slug
+            }, { status: 401 })
         }
 
         // Process the link (increment clicks and redirect)
@@ -94,11 +98,15 @@ export async function POST(
     const host = request.headers.get('host') || ''
 
     try {
-        const supabase = createSupabaseBrowserClient()
+        const supabase = await createSupabaseServerClient()
 
         const formData = await request.formData()
         const password = formData.get('password') as string
         const domain = formData.get('domain') as string
+
+        console.log('POST /api/redirect/' + slug + ' - Password verification request')
+        console.log('Domain:', domain)
+        console.log('Password provided:', !!password)
 
         // Look up the link
         let domainId: string | null = null
@@ -123,7 +131,10 @@ export async function POST(
             .eq('isActive', true)   // Using camelCase as per your database
             .single()
 
+        console.log('Link lookup result:', { link: !!link, error })
+
         if (error || !link) {
+            console.error('Link not found or error:', error)
             return NextResponse.redirect(new URL('/404', request.url))
         }
 
@@ -137,13 +148,52 @@ export async function POST(
             return NextResponse.redirect(new URL('/expired', request.url))
         }
 
-        // Verify password
-        if (link.isPasswordProtected && link.password !== password) {
-            // Password incorrect, redirect back to verification with error
-            const verifyUrl = new URL(`/verify/${slug}`, request.url)
-            verifyUrl.searchParams.set('domain', domain)
-            verifyUrl.searchParams.set('error', 'invalid_password')
-            return NextResponse.redirect(verifyUrl)
+        // Verify password if password protected
+        if (link.isPasswordProtected) {
+            console.log('Link is password protected, verifying password...')
+            if (!password) {
+                console.log('No password provided')
+                // No password provided, redirect back to verification with error
+                const verifyUrl = new URL(`/verify/${slug}`, request.url)
+                verifyUrl.searchParams.set('domain', domain)
+                verifyUrl.searchParams.set('error', 'password_required')
+                return NextResponse.redirect(verifyUrl)
+            }
+
+            // Get the password hash from link_passwords table
+            console.log('Looking up password hash for link ID:', link.id)
+            const { data: passwordData, error: passwordError } = await supabase
+                .from('link_passwords')
+                .select('password_hash')
+                .eq('link_id', link.id)
+                .eq('is_active', true)
+                .single()
+
+            console.log('Password hash lookup result:', { passwordData: !!passwordData, error: passwordError })
+
+            if (passwordError || !passwordData) {
+                console.error('Error fetching password hash:', passwordError)
+                const verifyUrl = new URL(`/verify/${slug}`, request.url)
+                verifyUrl.searchParams.set('domain', domain)
+                verifyUrl.searchParams.set('error', 'password_error')
+                return NextResponse.redirect(verifyUrl)
+            }
+
+            // Verify the password using bcrypt
+            console.log('Verifying password with bcrypt...')
+            const isValidPassword = await verifyPassword(password, passwordData.password_hash)
+            console.log('Password verification result:', isValidPassword)
+
+            if (!isValidPassword) {
+                console.log('Password verification failed')
+                // Password incorrect, redirect back to verification with error
+                const verifyUrl = new URL(`/verify/${slug}`, request.url)
+                verifyUrl.searchParams.set('domain', domain)
+                verifyUrl.searchParams.set('error', 'invalid_password')
+                return NextResponse.redirect(verifyUrl)
+            }
+
+            console.log('Password verification successful!')
         }
 
         // Password correct or not required, process the link
@@ -157,7 +207,7 @@ export async function POST(
 
 async function processLink(link: any, request: NextRequest) {
     try {
-        const supabase = createSupabaseBrowserClient()
+        const supabase = await createSupabaseServerClient()
 
         // Atomically increment click count using RPC
         const { error: incrementError } = await supabase.rpc('increment_link_clicks', {

@@ -23,8 +23,6 @@ export default async function DomainsPage() {
                 </div>
             </div>
 
-
-
             <ComingSoon
                 title="Domains Management"
                 description="Custom domain management and configuration will be available soon. You'll be able to add your own domains, configure DNS settings, and manage domain-specific settings."
@@ -36,6 +34,8 @@ export default async function DomainsPage() {
                     "Domain-specific analytics"
                 ]}
             />
+
+
         </div>
     )
 }
