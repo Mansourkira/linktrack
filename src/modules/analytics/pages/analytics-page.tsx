@@ -14,6 +14,7 @@ import {
 import { useAnalytics } from "../hooks/useAnalytics"
 import { StatsCards } from "../components/stats-cards"
 import { TopPerformingLinks } from "../components/top-performing-links"
+import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import Link from "next/link"
 
 export function AnalyticsPage() {
@@ -132,7 +133,13 @@ export function AnalyticsPage() {
             </Card>
 
             {/* Stats Cards */}
-            <StatsCards data={data} />
+            {/*     <StatsCards data={data} /> */}
+
+            {/* Analytics Chart */}
+            <ChartAreaInteractive
+                filters={filters}
+                onTimeRangeChange={(timeRange) => updateFilters({ dateRange: timeRange as any })}
+            />
 
             {/* Charts and Data */}
             <div className="grid gap-6 lg:grid-cols-2">
