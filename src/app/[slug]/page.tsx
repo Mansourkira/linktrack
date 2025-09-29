@@ -1,5 +1,41 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { Metadata } from "next"
+import { PasswordPromptCard } from "./components/password-prompt-card"
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { slug } = await params
+
+    try {
+        const supabase = await createSupabaseServerClient()
+        const { data: link } = await supabase
+            .from('links')
+            .select('originalUrl, isPasswordProtected')
+            .eq('shortCode', slug)
+            .eq('isActive', true)
+            .single()
+
+        if (link) {
+            if (link.isPasswordProtected) {
+                return {
+                    title: `Protected Link - ${slug}`,
+                    description: "This link is password protected. Enter the password to continue.",
+                }
+            } else {
+                return {
+                    title: `Redirecting...`,
+                    description: "You are being redirected to the destination URL.",
+                }
+            }
+        }
+    } catch (error) {
+        // Fallback metadata
+    }
+
+    return {
+        title: `Link Not Found - ${slug}`,
+        description: "The requested link could not be found.",
+    }
+}
 
 interface PageProps {
     params: Promise<{
@@ -87,6 +123,22 @@ export default async function RedirectPage({ params }: PageProps) {
         }
 
         console.log('✅ Link found:', link)
+
+        // Check if link is password protected
+        if (link.isPasswordProtected) {
+            console.log('🔒 Link is password protected, showing password prompt')
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+                    <PasswordPromptCard
+                        slug={slug}
+                        originalUrl={link.originalUrl}
+                    />
+                </div>
+            )
+        }
+
+        // Link is not password protected, proceed with normal redirect
+        console.log('🔓 Link is not password protected, proceeding with redirect')
 
         // Increment click count using correct column name
         const { error: updateError } = await supabase
