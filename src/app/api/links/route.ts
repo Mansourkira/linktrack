@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createLinkSchema } from '@/lib/schemas/link'
+import { hashPassword, validatePassword } from '@/lib/utils/password'
 
 export async function GET(request: NextRequest) {
     try {
@@ -108,9 +109,36 @@ export async function POST(request: NextRequest) {
         const user = await requireUser()
 
         const body = await request.json()
+        console.log('Link creation request body:', body)
 
         // Validate input
         const validatedInput = createLinkSchema.parse(body)
+        console.log('Validated input:', validatedInput)
+
+        // Validate password if password protection is enabled
+        if (validatedInput.isPasswordProtected) {
+            console.log('Password protection enabled, validating password...')
+            console.log('Password provided:', !!validatedInput.password)
+            console.log('Password value:', validatedInput.password ? '[REDACTED]' : 'undefined')
+
+            if (!validatedInput.password) {
+                console.log('Error: Password is required but not provided')
+                return NextResponse.json(
+                    { error: 'Password is required when password protection is enabled' },
+                    { status: 400 }
+                )
+            }
+
+            const passwordValidation = validatePassword(validatedInput.password)
+            if (!passwordValidation.isValid) {
+                console.log('Password validation failed:', passwordValidation.message)
+                return NextResponse.json(
+                    { error: passwordValidation.message },
+                    { status: 400 }
+                )
+            }
+            console.log('Password validation passed')
+        }
 
         // Check if shortCode is unique
         const supabase = await createSupabaseServerClient()
@@ -150,6 +178,33 @@ export async function POST(request: NextRequest) {
                 { error: `Failed to create link: ${error.message}` },
                 { status: 500 }
             )
+        }
+
+        // If password protection is enabled, store the hashed password
+        if (validatedInput.isPasswordProtected && validatedInput.password) {
+            console.log('Storing password hash for link:', link.id)
+            const passwordHash = await hashPassword(validatedInput.password)
+            console.log('Password hash generated successfully')
+
+            const { error: passwordError } = await supabase
+                .from('link_passwords')
+                .insert({
+                    link_id: link.id,
+                    password_hash: passwordHash,
+                    is_active: true,
+                    created_at: new Date().toISOString(),
+                })
+
+            if (passwordError) {
+                console.error('Error storing password hash:', passwordError)
+                // Clean up the link if password storage fails
+                await supabase.from('links').delete().eq('id', link.id)
+                return NextResponse.json(
+                    { error: 'Failed to store password' },
+                    { status: 500 }
+                )
+            }
+            console.log('Password hash stored successfully')
         }
 
         console.log('POST /api/links success:', { linkId: link.id, userId: user.id })
