@@ -16,6 +16,7 @@ export function useLinks() {
         originalUrl: "",
         shortCode: "",
         isPasswordProtected: false,
+        password: "",
         isActive: true,
     })
 
@@ -71,6 +72,7 @@ export function useLinks() {
             originalUrl: "",
             shortCode: "",
             isPasswordProtected: false,
+            password: "",
             isActive: true,
         })
     }, [])
@@ -103,6 +105,7 @@ export function useLinks() {
                     shortCode,
                     originalUrl: formData.originalUrl,
                     isPasswordProtected: formData.isPasswordProtected,
+                    password: formData.password,
                     isActive: formData.isActive
                 })
             })
