@@ -107,10 +107,25 @@ export function CreateLinkForm({
                             />
                         </div>
 
-                        <div className="text-xs text-muted-foreground p-3 bg-muted rounded-md">
-                            <strong>Note:</strong> Password protection is enabled but password storage is not yet implemented.
-                            This feature will be available in a future update.
-                        </div>
+                        {/* Password Input - Show when password protection is enabled */}
+                        {formData.isPasswordProtected && (
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password *</Label>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Enter password for this link"
+                                    value={formData.password || ''}
+                                    onChange={(e) => handleInputChange("password", e.target.value)}
+                                    required={formData.isPasswordProtected}
+                                    minLength={4}
+                                    maxLength={128}
+                                />
+                                <div className="text-xs text-muted-foreground">
+                                    Password must be at least 4 characters long
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Active Status */}
