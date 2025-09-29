@@ -1,29 +1,39 @@
-export default function ApiKeyPage() {
+import { requireUser } from "@/lib/auth/server"
+import { ComingSoon } from "@/components/ComingSoon"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { IconArrowLeft } from "@tabler/icons-react"
+
+export default async function BulkImportPage() {
+    const user = await requireUser();
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-gray-900 p-4">
-            <h1 className="text-5xl font-extrabold text-gray-900 dark:text-gray-50 mb-4 animate-pulse">
-                Coming Soon!
-            </h1>
-            <p className="text-xl text-gray-700 dark:text-gray-200 text-center max-w-md">
-                We're diligently working on bringing you exciting new API Key management features.
-                Stay tuned for updates!
-            </p>
-            <div className="mt-8 text-gray-500 dark:text-gray-300">
-                <svg
-                    className="w-12 h-12 animate-bounce"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
-                </svg>
+        <div className="space-y-6 p-6 w-full">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Link href="/dashboard">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <IconArrowLeft className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-semibold">API Keys</h1>
+                        <p className="text-muted-foreground">Manage your API keys</p>
+                    </div>
+                </div>
             </div>
+
+            <ComingSoon
+                title="API Keys"
+                description="Bulk import links from a file. You'll be able to import links from a CSV, JSON, URL list, text file, or HTML file."
+                features={[
+                    "Create API keys",
+                    "Manage your API keys",
+                    "Delete API keys"
+                ]}
+            />
+
+
         </div>
-    );
+    )
 }

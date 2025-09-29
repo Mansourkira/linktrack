@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { IconArrowLeft } from "@tabler/icons-react"
 
-export default async function BulkImportPage() {
+export default async function IntegrationsPage() {
     const user = await requireUser();
 
     return (
@@ -17,21 +17,21 @@ export default async function BulkImportPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-semibold">Bulk Import</h1>
-                        <p className="text-muted-foreground">Bulk import links from a file</p>
+                        <h1 className="text-2xl font-semibold">Settings</h1>
+                        <p className="text-muted-foreground">Manage your settings</p>
                     </div>
                 </div>
             </div>
 
             <ComingSoon
-                title="Bulk Import"
-                description="Bulk import links from a file. You'll be able to import links from a CSV, JSON, URL list, text file, or HTML file."
+                title="Settings"
+                description="Manage your settings. You'll be able to manage your settings, such as your profile, your password, and your email."
                 features={[
-                    "Import links from a CSV file",
-                    "Import links from a JSON file",
-                    "Import links from a URL list",
-                    "Import links from a text file",
-                    "Import links from a HTML file"
+                    "Manage your profile",
+                    "Manage your password",
+                    "Manage your email",
+                    "Manage your notifications",
+                    "Manage your integrations"
                 ]}
             />
 

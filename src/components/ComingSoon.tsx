@@ -53,10 +53,12 @@ export const ComingSoon = ({
               <span className="text-sm text-muted-foreground">Feature in development</span>
             </div>
 
-            <div className="flex items-center justify-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-3">
-              <IconBrandGithub className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Contributions welcome on GitHub</span>
-            </div>
+            <Link href="https://github.com/Mansourkira/linktrack" target="_blank" rel="noopener noreferrer" className="block">
+              <div className="flex items-center justify-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-3 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                <IconBrandGithub className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Contributions welcome on GitHub</span>
+              </div>
+            </Link>
           </CardContent>
         )}
 

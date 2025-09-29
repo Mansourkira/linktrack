@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { IconArrowLeft } from "@tabler/icons-react"
 
-export default async function BulkImportPage() {
+export default async function IntegrationsPage() {
     const user = await requireUser();
 
     return (
@@ -17,21 +17,21 @@ export default async function BulkImportPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-semibold">Bulk Import</h1>
-                        <p className="text-muted-foreground">Bulk import links from a file</p>
+                        <h1 className="text-2xl font-semibold">Integrations</h1>
+                        <p className="text-muted-foreground">Integrate with other services</p>
                     </div>
                 </div>
             </div>
 
             <ComingSoon
-                title="Bulk Import"
-                description="Bulk import links from a file. You'll be able to import links from a CSV, JSON, URL list, text file, or HTML file."
+                title="Integrations"
+                description="Integrate with other services. You'll be able to integrate with Google Analytics, Google Tag Manager, Google Ads, Google Search Console, and Google My Business."
                 features={[
-                    "Import links from a CSV file",
-                    "Import links from a JSON file",
-                    "Import links from a URL list",
-                    "Import links from a text file",
-                    "Import links from a HTML file"
+                    "Integrate with Google Analytics",
+                    "Integrate with Google Tag Manager",
+                    "Integrate with Google Ads",
+                    "Integrate with Google Search Console",
+                    "Integrate with Google My Business"
                 ]}
             />
 
