@@ -15,6 +15,7 @@ import { CreateLinkForm } from "../components/create-link-form"
 import { RowActions } from "../components/row-actions"
 import { LinksCardView } from "../components/links-card-view"
 import { DeleteLinkDialog } from "../components/delete-link-dialog"
+import { LinksSkeleton } from "../components/links-skeleton"
 import { getBaseUrl } from "../config"
 import type { Link as LinkType } from "../types"
 
@@ -109,62 +110,57 @@ export function LinksPage() {
                 </div>
             </div>
 
-            {/* Loading Indicator */}
-            {(isLoading || isOperationLoading) && (
-                <div className="mb-4 rounded-lg bg-primary/10 border border-primary/20 p-3">
-                    <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                        <span className="text-sm font-medium text-primary">
-                            {isLoading ? 'Loading links...' : 'Processing...'}
-                        </span>
-                    </div>
-                </div>
-            )}
-
             {/* Links Management */}
             <CrudCard>
-                {/* Content based on view */}
-                {view === "table" ? (
-                    <DataTable
-                        data={links}
-                        columns={columns}
-                        searchKey="originalUrl"
-                        searchPlaceholder="Search links..."
-                        toolbar={toolbarContent}
-                        rowActions={rowActions}
-                        emptyState={emptyState}
-                        pagination={true}
-                        pageSize={10}
-                    />
+                {/* Show skeleton loading when fetching links */}
+                {isLoading ? (
+                    <LinksSkeleton view={view} />
                 ) : (
-                    <div className="space-y-4">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-2">
-                                <ViewSwitcher
-                                    view={view}
-                                    onViewChange={setView}
+                    <>
+                        {/* Content based on view */}
+                        {view === "table" ? (
+                            <DataTable
+                                data={links}
+                                columns={columns}
+                                searchKey="originalUrl"
+                                searchPlaceholder="Search links..."
+                                toolbar={toolbarContent}
+                                rowActions={rowActions}
+                                emptyState={emptyState}
+                                pagination={true}
+                                pageSize={10}
+                            />
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ViewSwitcher
+                                            view={view}
+                                            onViewChange={setView}
+                                        />
+                                    </div>
+                                    <CreateLinkForm
+                                        isOpen={isCreateDialogOpen}
+                                        onOpenChange={toggleCreateDialog}
+                                        formData={formData}
+                                        onFormDataChange={updateFormData}
+                                        onSubmit={createLink}
+                                        isSubmitting={isOperationLoading}
+                                        onReset={resetForm}
+                                    />
+                                </div>
+                                <LinksCardView
+                                    links={links}
+                                    onCopy={copyToClipboard}
+                                    onDelete={showDeleteDialog}
+                                    searchTerm={searchTerm}
+                                    onSearchChange={setSearchTerm}
+                                    searchPlaceholder="Search links..."
+                                    emptyState={emptyState}
                                 />
                             </div>
-                            <CreateLinkForm
-                                isOpen={isCreateDialogOpen}
-                                onOpenChange={toggleCreateDialog}
-                                formData={formData}
-                                onFormDataChange={updateFormData}
-                                onSubmit={createLink}
-                                isSubmitting={isOperationLoading}
-                                onReset={resetForm}
-                            />
-                        </div>
-                        <LinksCardView
-                            links={links}
-                            onCopy={copyToClipboard}
-                            onDelete={showDeleteDialog}
-                            searchTerm={searchTerm}
-                            onSearchChange={setSearchTerm}
-                            searchPlaceholder="Search links..."
-                            emptyState={emptyState}
-                        />
-                    </div>
+                        )}
+                    </>
                 )}
             </CrudCard>
 
