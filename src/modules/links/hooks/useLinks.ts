@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { toast } from "sonner"
 import type { CreateLinkFormData, LinksState } from "../types"
 
@@ -18,6 +18,15 @@ export function useLinks() {
         isPasswordProtected: false,
         password: "",
         isActive: true,
+    })
+
+    // Delete confirmation dialog state
+    const [deleteDialog, setDeleteDialog] = useState<{
+        isOpen: boolean
+        link: any | null
+    }>({
+        isOpen: false,
+        link: null
     })
 
     // Fetch links using API route
@@ -95,28 +104,50 @@ export function useLinks() {
                 shortCode = await generateShortCode()
             }
 
+            // Prepare the request body
+            const requestBody: any = {
+                shortCode,
+                originalUrl: formData.originalUrl,
+                isPasswordProtected: formData.isPasswordProtected,
+                isActive: formData.isActive
+            }
+
+            // Only include password if password protection is enabled
+            if (formData.isPasswordProtected && formData.password) {
+                requestBody.password = formData.password
+            }
+
             // Create the link using API route
             const response = await fetch('/api/links', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    shortCode,
-                    originalUrl: formData.originalUrl,
-                    isPasswordProtected: formData.isPasswordProtected,
-                    password: formData.password,
-                    isActive: formData.isActive
-                })
+                body: JSON.stringify(requestBody)
             })
 
             const result = await response.json()
 
             if (response.ok) {
-                toast.success('Link created successfully!')
-                resetForm()
-                setState(prev => ({ ...prev, isCreateDialogOpen: false }))
-                fetchLinks() // Refresh the list
+                // Assuming the API response for a successful link creation includes the shortCode
+                toast.success('Link created successfully!', {
+                    action: {
+                        label: 'View Link',
+                        onClick: () => {
+                            if (result.shortCode) {
+                                // Construct the full absolute URL using the current origin
+                                const fullShortUrl = `${window.location.origin}/${result.shortCode}`;
+                                window.open(fullShortUrl, '_blank');
+                            } else {
+                                console.warn('Short code not found in the response for the created link.');
+                                toast.error('Link created, but short URL could not be displayed.');
+                            }
+                        },
+                    },
+                });
+                resetForm();
+                setState(prev => ({ ...prev, isCreateDialogOpen: false }));
+                fetchLinks(); // Refresh the list
             } else {
                 toast.error(result.error || 'Failed to create link')
             }
@@ -128,9 +159,27 @@ export function useLinks() {
         }
     }, [formData, generateShortCode, fetchLinks, resetForm])
 
-    // Delete link using API route
+    // Show delete confirmation dialog
+    const showDeleteDialog = useCallback((link: any) => {
+        setDeleteDialog({
+            isOpen: true,
+            link
+        })
+    }, [])
+
+    // Close delete confirmation dialog
+    const closeDeleteDialog = useCallback(() => {
+        setDeleteDialog({
+            isOpen: false,
+            link: null
+        })
+    }, [])
+
+    // Delete link using API route (called from confirmation dialog)
     const deleteLink = useCallback(async (id: string) => {
         try {
+            setState(prev => ({ ...prev, isOperationLoading: true }))
+
             const response = await fetch(`/api/links/${id}`, {
                 method: 'DELETE',
             })
@@ -139,15 +188,21 @@ export function useLinks() {
 
             if (response.ok) {
                 toast.success('Link deleted successfully')
-                fetchLinks() // Refresh the list
+                // Optimistically update the UI instead of refetching
+                setState(prev => ({
+                    ...prev,
+                    links: prev.links.filter(link => link.id !== id)
+                }))
             } else {
                 toast.error(result.error || 'Failed to delete link')
             }
         } catch (error) {
             console.error('Error deleting link:', error)
             toast.error('Failed to delete link')
+        } finally {
+            setState(prev => ({ ...prev, isOperationLoading: false }))
         }
-    }, [fetchLinks])
+    }, [])
 
     // Toggle link status using API route
     const toggleLinkStatus = useCallback(async (id: string) => {
@@ -187,13 +242,26 @@ export function useLinks() {
 
     // Update form data
     const updateFormData = useCallback((field: keyof CreateLinkFormData, value: string | boolean) => {
-        setFormData(prev => ({ ...prev, [field]: value }))
+        setFormData(prev => {
+            const newData = { ...prev, [field]: value }
+
+            // Clear password when password protection is disabled
+            if (field === 'isPasswordProtected' && value === false) {
+                newData.password = ''
+            }
+
+            return newData
+        })
     }, [])
 
     // Toggle create dialog
     const toggleCreateDialog = useCallback((open: boolean) => {
         setState(prev => ({ ...prev, isCreateDialogOpen: open }))
     }, [])
+
+    // Memoized values for better performance
+    const memoizedState = useMemo(() => state, [state])
+    const memoizedFormData = useMemo(() => formData, [formData])
 
     // Load links on mount
     useEffect(() => {
@@ -202,12 +270,15 @@ export function useLinks() {
 
     return {
         // State
-        ...state,
-        formData,
+        ...memoizedState,
+        formData: memoizedFormData,
+        deleteDialog,
 
         // Actions
         createLink,
         deleteLink,
+        showDeleteDialog,
+        closeDeleteDialog,
         toggleLinkStatus,
         copyToClipboard,
         resetForm,
