@@ -14,6 +14,7 @@ import { createLinkColumns } from "../components/table-columns"
 import { CreateLinkForm } from "../components/create-link-form"
 import { RowActions } from "../components/row-actions"
 import { LinksCardView } from "../components/links-card-view"
+import { DeleteLinkDialog } from "../components/delete-link-dialog"
 import { getBaseUrl } from "../config"
 import type { Link as LinkType } from "../types"
 
@@ -24,8 +25,11 @@ export function LinksPage() {
         isOperationLoading,
         isCreateDialogOpen,
         formData,
+        deleteDialog,
         createLink,
         deleteLink,
+        showDeleteDialog,
+        closeDeleteDialog,
         toggleLinkStatus,
         copyToClipboard,
         resetForm,
@@ -42,7 +46,7 @@ export function LinksPage() {
         <RowActions
             link={row}
             onCopy={copyToClipboard}
-            onDelete={deleteLink}
+            onDelete={showDeleteDialog}
         />
     )
 
@@ -154,7 +158,7 @@ export function LinksPage() {
                         <LinksCardView
                             links={links}
                             onCopy={copyToClipboard}
-                            onDelete={deleteLink}
+                            onDelete={showDeleteDialog}
                             searchTerm={searchTerm}
                             onSearchChange={setSearchTerm}
                             searchPlaceholder="Search links..."
@@ -163,6 +167,15 @@ export function LinksPage() {
                     </div>
                 )}
             </CrudCard>
+
+            {/* Delete Confirmation Dialog */}
+            <DeleteLinkDialog
+                link={deleteDialog.link}
+                isOpen={deleteDialog.isOpen}
+                onOpenChange={closeDeleteDialog}
+                onConfirm={deleteLink}
+                isDeleting={isOperationLoading}
+            />
         </div>
     )
 }
