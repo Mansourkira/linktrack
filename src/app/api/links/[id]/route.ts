@@ -196,6 +196,37 @@ export async function DELETE(
             )
         }
 
+        // First, check if the link has password protection
+        const { data: linkData, error: linkError } = await supabase
+            .from('links')
+            .select('isPasswordProtected')
+            .eq('id', id)
+            .single()
+
+        if (linkError) {
+            console.error('Error fetching link data:', linkError)
+            return NextResponse.json(
+                { error: `Failed to fetch link data: ${linkError.message}` },
+                { status: 500 }
+            )
+        }
+
+        // If password protected, delete the password record first
+        if (linkData.isPasswordProtected) {
+            const { error: passwordError } = await supabase
+                .from('link_passwords')
+                .delete()
+                .eq('link_id', id)
+
+            if (passwordError) {
+                console.error('Error deleting password record:', passwordError)
+                return NextResponse.json(
+                    { error: `Failed to delete password record: ${passwordError.message}` },
+                    { status: 500 }
+                )
+            }
+        }
+
         // Soft delete by setting deletedAt
         const { error } = await supabase
             .from('links')
