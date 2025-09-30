@@ -96,7 +96,8 @@ export async function POST(
 ) {
     const { slug } = await params
     const host = request.headers.get('host') || ''
-
+    console.log('POST /api/redirect/' + slug + ' - Password verification request')
+    console.log('Host:', host)
     try {
         const supabase = await createSupabaseServerClient()
 
@@ -153,15 +154,25 @@ export async function POST(
             console.log('Link is password protected, verifying password...')
             if (!password) {
                 console.log('No password provided')
-                // No password provided, redirect back to verification with error
-                const verifyUrl = new URL(`/verify/${slug}`, request.url)
-                verifyUrl.searchParams.set('domain', domain)
-                verifyUrl.searchParams.set('error', 'password_required')
-                return NextResponse.redirect(verifyUrl)
+                // No password provided, return JSON error
+                return NextResponse.json({
+                    error: 'Password is required'
+                }, { status: 400 })
             }
 
             // Get the password hash from link_passwords table
             console.log('Looking up password hash for link ID:', link.id)
+            console.log('Link ID type:', typeof link.id)
+            console.log('Link ID valid UUID:', /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(link.id))
+
+            // First, let's check if any password records exist for this link
+            const { data: allPasswords, error: allPasswordsError } = await supabase
+                .from('link_passwords')
+                .select('*')
+                .eq('link_id', link.id)
+
+            console.log('All password records for link:', { allPasswords, allPasswordsError })
+
             const { data: passwordData, error: passwordError } = await supabase
                 .from('link_passwords')
                 .select('password_hash')
@@ -173,10 +184,9 @@ export async function POST(
 
             if (passwordError || !passwordData) {
                 console.error('Error fetching password hash:', passwordError)
-                const verifyUrl = new URL(`/verify/${slug}`, request.url)
-                verifyUrl.searchParams.set('domain', domain)
-                verifyUrl.searchParams.set('error', 'password_error')
-                return NextResponse.redirect(verifyUrl)
+                return NextResponse.json({
+                    error: 'Password verification failed. Please try again.'
+                }, { status: 500 })
             }
 
             // Verify the password using bcrypt
@@ -186,17 +196,17 @@ export async function POST(
 
             if (!isValidPassword) {
                 console.log('Password verification failed')
-                // Password incorrect, redirect back to verification with error
-                const verifyUrl = new URL(`/verify/${slug}`, request.url)
-                verifyUrl.searchParams.set('domain', domain)
-                verifyUrl.searchParams.set('error', 'invalid_password')
-                return NextResponse.redirect(verifyUrl)
+                // Password incorrect, return JSON error
+                return NextResponse.json({
+                    error: 'Invalid password. Please try again.'
+                }, { status: 401 })
             }
 
             console.log('Password verification successful!')
         }
 
         // Password correct or not required, process the link
+        console.log('Password verification successful, processing link...')
         return await processLink(link, request)
 
     } catch (error) {
@@ -209,18 +219,23 @@ async function processLink(link: any, request: NextRequest) {
     try {
         const supabase = await createSupabaseServerClient()
 
-        // Atomically increment click count using RPC
-        const { error: incrementError } = await supabase.rpc('increment_link_clicks', {
-            link_id: link.id
-        })
+        // Increment click count using regular update
+        const { error: incrementError } = await supabase
+            .from('links')
+            .update({ clickCount: link.clickCount + 1 })
+            .eq('id', link.id)
 
         if (incrementError) {
             console.error('Error incrementing clicks:', incrementError)
             // Continue with redirect even if click tracking fails
         }
 
-        // Redirect to target URL using correct column name
-        return NextResponse.redirect(link.originalUrl, 302)  // Using camelCase as per your database
+        // Return the target URL as JSON instead of redirecting
+        console.log('Password correct, returning target URL:', link.originalUrl)
+        return NextResponse.json({
+            success: true,
+            redirectUrl: link.originalUrl
+        })
 
     } catch (error) {
         console.error('Error processing link:', error)
