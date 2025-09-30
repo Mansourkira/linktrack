@@ -13,7 +13,7 @@ import { useState } from "react"
 interface LinksCardViewProps {
     links: Link[]
     onCopy: (text: string) => void
-    onDelete: (id: string) => void
+    onDelete: (link: Link) => void
     searchTerm: string
     onSearchChange: (term: string) => void
     searchPlaceholder?: string
