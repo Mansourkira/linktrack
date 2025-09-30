@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger, SidebarRail } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/site/theme-toggle"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function DashboardLayout({
     children,
@@ -20,6 +21,7 @@ export default function DashboardLayout({
                     {children}
                 </div>
             </SidebarInset>
+            <Toaster />
         </SidebarProvider>
     )
 }
