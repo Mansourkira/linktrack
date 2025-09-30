@@ -143,21 +143,41 @@ export async function POST(request: NextRequest) {
         // Check if shortCode is unique
         const supabase = await createSupabaseServerClient()
 
+        console.log('Checking short code uniqueness for:', validatedInput.shortCode)
         const { data: existingLink, error: checkError } = await supabase
             .from('links')
             .select('id')
             .eq('shortCode', validatedInput.shortCode)
             .is('deletedAt', null)
-            .single()
+            .maybeSingle()
+
+        console.log('Short code check result:', { existingLink, checkError })
+
+        if (checkError) {
+            console.error('Error checking short code uniqueness:', checkError)
+            return NextResponse.json(
+                { error: 'Failed to validate short code' },
+                { status: 500 }
+            )
+        }
 
         if (existingLink) {
+            console.log('Short code already exists, returning error')
             return NextResponse.json(
-                { error: 'Short code already exists' },
+                { error: 'Short code already exists. Please choose a different one.' },
                 { status: 400 }
             )
         }
 
         // Create the link
+        console.log('Creating link with data:', {
+            shortCode: validatedInput.shortCode,
+            originalUrl: validatedInput.originalUrl,
+            isPasswordProtected: validatedInput.isPasswordProtected,
+            isActive: validatedInput.isActive,
+            ownerProfileId: user.id
+        })
+
         const { data: link, error } = await supabase
             .from('links')
             .insert({
@@ -174,11 +194,23 @@ export async function POST(request: NextRequest) {
 
         if (error) {
             console.error('Database error in POST /api/links:', error)
+
+            // Handle specific database errors
+            if (error.code === '23505' && error.constraint === 'links_shortcode_unique') {
+                console.log('Duplicate short code detected by database constraint')
+                return NextResponse.json(
+                    { error: 'Short code already exists. Please choose a different one.' },
+                    { status: 400 }
+                )
+            }
+
             return NextResponse.json(
                 { error: `Failed to create link: ${error.message}` },
                 { status: 500 }
             )
         }
+
+        console.log('Link created successfully:', link.id)
 
         // If password protection is enabled, store the hashed password
         if (validatedInput.isPasswordProtected && validatedInput.password) {
@@ -186,7 +218,7 @@ export async function POST(request: NextRequest) {
             const passwordHash = await hashPassword(validatedInput.password)
             console.log('Password hash generated successfully')
 
-            const { error: passwordError } = await supabase
+            const { data: passwordData, error: passwordError } = await supabase
                 .from('link_passwords')
                 .insert({
                     link_id: link.id,
@@ -194,9 +226,16 @@ export async function POST(request: NextRequest) {
                     is_active: true,
                     created_at: new Date().toISOString(),
                 })
+                .select()
 
             if (passwordError) {
                 console.error('Error storing password hash:', passwordError)
+                console.error('Password error details:', {
+                    code: passwordError.code,
+                    message: passwordError.message,
+                    details: passwordError.details,
+                    hint: passwordError.hint
+                })
                 // Clean up the link if password storage fails
                 await supabase.from('links').delete().eq('id', link.id)
                 return NextResponse.json(
@@ -204,7 +243,7 @@ export async function POST(request: NextRequest) {
                     { status: 500 }
                 )
             }
-            console.log('Password hash stored successfully')
+            console.log('Password hash stored successfully:', passwordData)
         }
 
         console.log('POST /api/links success:', { linkId: link.id, userId: user.id })
