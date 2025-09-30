@@ -202,11 +202,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarSearch />
-        <div className="group-data-[collapsible=icon]:hidden">
-          <SidebarSeparator />
-        </div>
         <SectionedNavMain sections={data.navMain} onNavigate={handleNavigation} isNavigating={isNavigating} />
-        <SidebarSeparator />
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
