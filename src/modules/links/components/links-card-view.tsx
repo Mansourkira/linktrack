@@ -1,6 +1,6 @@
 "use client"
 
-import { IconCopy, IconExternalLink, IconCalendar, IconClick, IconShield, IconShieldOff } from "@tabler/icons-react"
+import { IconCopy, IconExternalLink, IconCalendar, IconClick, IconShield, IconShieldOff, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -53,7 +53,7 @@ export function LinksCardView({
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="pl-9"
                     />
-                    <IconCopy className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                    <IconSearch className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
                 </div>
                 {emptyState}
             </div>
@@ -70,7 +70,7 @@ export function LinksCardView({
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="pl-9"
                 />
-                <IconCopy className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
+                <IconSearch className="absolute left-3 top-1/2 h-4 w-4 text-muted-foreground transform -translate-y-1/2" />
             </div>
 
             {/* Cards Grid */}
@@ -81,24 +81,26 @@ export function LinksCardView({
                             <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <a
-                                            href={getShortUrl(link.shortCode)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer truncate"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            {link.shortCode}
-                                        </a>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleCopy(link.shortCode)}
-                                            className="h-6 w-6 p-0"
-                                            title="Copy short URL"
-                                        >
-                                            <IconCopy className="h-3 w-3" />
-                                        </Button>
+                                        <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-lg font-mono text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 cursor-pointer group">
+                                            <a
+                                                href={getShortUrl(link.shortCode)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="truncate"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {link.shortCode}
+                                            </a>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => handleCopy(link.shortCode)}
+                                                className="h-5 w-5 p-0 text-white hover:bg-white/20 transition-colors"
+                                                title="Copy short URL"
+                                            >
+                                                <IconCopy className="h-3 w-3" />
+                                            </Button>
+                                        </div>
                                     </div>
                                     <div className="text-xs text-muted-foreground truncate max-w-[200px]" title={link.originalUrl}>
                                         {link.originalUrl}

@@ -44,11 +44,11 @@ const chartConfig = {
   },
   mobile: {
     label: "Mobile",
-    color: "hsl(var(--muted-foreground))",
+    color: "hsl(142, 76%, 36%)", // Green color that works well in both light and dark modes
   },
   tablet: {
     label: "Tablet",
-    color: "hsl(var(--accent))",
+    color: "hsl(262, 83%, 58%)", // Purple color that works well in both light and dark modes
   },
 } satisfies ChartConfig
 
@@ -320,7 +320,11 @@ export function ChartAreaInteractive({ filters, onTimeRangeChange }: ChartAreaIn
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              strokeDasharray="3 3"
+              className="opacity-30"
+            />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -366,6 +370,7 @@ export function ChartAreaInteractive({ filters, onTimeRangeChange }: ChartAreaIn
                 type="natural"
                 fill="url(#fillDesktop)"
                 stroke="var(--color-desktop)"
+                strokeWidth={2}
                 stackId="a"
               />
             ) : null}
@@ -374,7 +379,8 @@ export function ChartAreaInteractive({ filters, onTimeRangeChange }: ChartAreaIn
                 dataKey="mobile"
                 type="natural"
                 fill="url(#fillMobile)"
-                stroke="var(--color-mobile)"
+                stroke="hsl(142, 76%, 36%)"
+                strokeWidth={2}
                 stackId="a"
               />
             ) : null}
@@ -383,7 +389,8 @@ export function ChartAreaInteractive({ filters, onTimeRangeChange }: ChartAreaIn
                 dataKey="tablet"
                 type="natural"
                 fill="url(#fillTablet)"
-                stroke="var(--color-tablet)"
+                stroke="hsl(262, 83%, 58%)"
+                strokeWidth={2}
                 stackId="a"
               />
             ) : null}

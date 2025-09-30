@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { IconTrash, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { getShortUrl } from "../config"
@@ -24,15 +24,23 @@ export function DeleteLinkDialog({
 }: DeleteLinkDialogProps) {
     const [isDeletingLocal, setIsDeletingLocal] = useState(false)
 
+    // Reset local state when dialog closes
+    useEffect(() => {
+        if (!isOpen) {
+            setIsDeletingLocal(false)
+        }
+    }, [isOpen])
+
     const handleConfirm = async () => {
-        if (!link) return
+        if (!link || isDeletingLocal) return
 
         setIsDeletingLocal(true)
         try {
             await onConfirm(link.id)
-            onOpenChange(false)
+            // Dialog will be closed by the parent component after successful deletion
         } catch (error) {
             console.error('Error deleting link:', error)
+            // Keep dialog open on error so user can try again
         } finally {
             setIsDeletingLocal(false)
         }

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useRouter, usePathname } from "next/navigation"
+import Image from "next/image"
 import {
   IconCamera,
   IconChartBar,
@@ -184,8 +185,14 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={data.company.name}>
               <Link href="/dashboard" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 transition-all duration-200">
-                  <IconInnerShadowTop className="h-4 w-4 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5 transition-all duration-200" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 transition-all duration-200 overflow-hidden">
+                  <Image
+                    src="/linktrack.png"
+                    alt={data.company.name}
+                    width={32}
+                    height={32}
+                    className="h-full w-full object-contain group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 transition-all duration-200"
+                  />
                 </div>
                 <span className="font-bold group-data-[collapsible=icon]:hidden transition-all duration-200">{data.company.name}</span>
               </Link>

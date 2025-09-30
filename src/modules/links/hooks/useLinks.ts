@@ -193,6 +193,8 @@ export function useLinks() {
                     ...prev,
                     links: prev.links.filter(link => link.id !== id)
                 }))
+                // Close the dialog after successful deletion
+                closeDeleteDialog()
             } else {
                 toast.error(result.error || 'Failed to delete link')
             }
@@ -202,7 +204,7 @@ export function useLinks() {
         } finally {
             setState(prev => ({ ...prev, isOperationLoading: false }))
         }
-    }, [])
+    }, [closeDeleteDialog])
 
     // Toggle link status using API route
     const toggleLinkStatus = useCallback(async (id: string) => {
