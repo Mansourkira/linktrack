@@ -89,7 +89,7 @@ export default function Page() {
           </Link>
 
           <Link href="/dashboard/links">
-            <div className="flex flex-col items-center p-6 border rounded-lg bg-accent border-accent-foreground">
+            <div className="flex flex-col items-center p-6 border rounded-lg hover:bg-accent hover:border-accent-foreground transition-colors cursor-pointer">
               <IconLink className="h-8 w-8 text-primary mb-2" />
               <h3 className="font-medium">Manage Links</h3>
               <p className="text-sm text-muted-foreground text-center">

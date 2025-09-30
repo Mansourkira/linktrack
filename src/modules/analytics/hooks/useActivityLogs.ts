@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { ActivityLog, ActivityLogFilters, ActivityLogsState, ActivityAction } from "../types"
+import { useRouter } from "next/navigation"
 
 export function useActivityLogs() {
+    const router = useRouter()
     const [state, setState] = useState<ActivityLogsState>({
         logs: [],
         isLoading: true,
@@ -26,7 +28,9 @@ export function useActivityLogs() {
             const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
-                throw new Error('User not authenticated')
+                // redirect to auth
+                router.push('/auth')
+                return
             }
 
             // Build query with filters

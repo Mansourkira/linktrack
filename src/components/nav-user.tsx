@@ -74,7 +74,7 @@ export function NavUser() {
         <SidebarMenuItem>
           <SidebarMenuButton
             size="lg"
-            onClick={() => router.push('/auth/login')}
+            onClick={() => router.push('/auth')}
             className="cursor-pointer hover:bg-sidebar-accent"
           >
             <Avatar className="h-8 w-8 rounded-lg">

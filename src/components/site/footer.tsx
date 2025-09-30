@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LinkIcon } from "lucide-react"
+import { LinkIcon, Github, Linkedin } from "lucide-react"
 
 const footerLinks = {
   product: [
@@ -25,9 +25,8 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: "GitHub", href: "https://github.com", icon: "github" },
-  { name: "Twitter", href: "https://twitter.com", icon: "twitter" },
-  { name: "LinkedIn", href: "https://linkedin.com", icon: "linkedin" },
+  { name: "GitHub", href: "https://github.com/Mansourkira/linktrack", icon: Github },
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/ben-mansour-mansour-986873186", icon: Linkedin },
 ]
 
 export function Footer() {
@@ -123,18 +122,21 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 mt-8 border-t gap-4">
           <p className="text-sm text-muted-foreground">© {currentYear} LinkTrack. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            {socialLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="sr-only">{link.name}</span>
-                <div className="h-5 w-5 bg-current" />
-              </Link>
-            ))}
+            {socialLinks.map((link) => {
+              const IconComponent = link.icon
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="sr-only">{link.name}</span>
+                  <IconComponent className="h-5 w-5" />
+                </Link>
+              )
+            })}
           </div>
         </div>
       </div>

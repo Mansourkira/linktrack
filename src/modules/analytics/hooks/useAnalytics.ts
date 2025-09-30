@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { AnalyticsData, AnalyticsFilters, AnalyticsState } from "../types"
+import { useRouter } from "next/navigation"
 
 export function useAnalytics() {
+    const router = useRouter()
     const [state, setState] = useState<AnalyticsState>({
         data: null,
         isLoading: true,
@@ -23,7 +25,9 @@ export function useAnalytics() {
             const supabase = createSupabaseBrowserClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
-                throw new Error('User not authenticated')
+                // redirect to login
+                router.push('/auth')
+                return
             }
 
             // Fetch basic stats

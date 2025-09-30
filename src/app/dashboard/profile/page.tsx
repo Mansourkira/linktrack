@@ -110,13 +110,16 @@ export default function ProfilePage() {
             }
 
             // Update profile using the hook
-            await updateProfile({
+            const updateData = {
                 username: formData.username || null,
                 fullName: formData.fullName || null,
-                website: formData.website || null,
+                website: formData.website?.trim() || null,
                 themeMode: formData.themeMode,
                 avatarUrl: avatarUrl
-            })
+            }
+
+            console.log('Updating profile with data:', updateData)
+            await updateProfile(updateData)
 
             // Clear avatar file
             setAvatarFile(null)
@@ -124,7 +127,12 @@ export default function ProfilePage() {
             toast.success('Profile updated successfully!')
         } catch (error) {
             console.error('Error updating profile:', error)
-            // Error handling is now done in the hook, so we don't need to show toast here
+            // Show specific error message to user
+            if (error instanceof Error) {
+                toast.error(error.message)
+            } else {
+                toast.error('Failed to update profile. Please try again.')
+            }
         } finally {
             setIsSaving(false)
         }
@@ -193,7 +201,9 @@ export default function ProfilePage() {
                                         <IconCamera className="h-4 w-4" />
                                     </Button>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                {/*
+                               TODO: Add back in when we have a way to upload avatars
+                                 <div className="flex flex-col gap-2">
                                     <input
                                         id="avatar-input"
                                         type="file"
@@ -221,7 +231,7 @@ export default function ProfilePage() {
                                             Remove
                                         </Button>
                                     )}
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -260,24 +270,6 @@ export default function ProfilePage() {
                                 value={formData.website}
                                 onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
                             />
-                        </div>
-
-                        {/* Theme Mode */}
-                        <div className="space-y-2">
-                            <Label htmlFor="themeMode">Theme Mode</Label>
-                            <Select
-                                value={formData.themeMode}
-                                onValueChange={(value) => setFormData(prev => ({ ...prev, themeMode: value }))}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select theme mode" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="light">Light</SelectItem>
-                                    <SelectItem value="dark">Dark</SelectItem>
-                                    <SelectItem value="system">System</SelectItem>
-                                </SelectContent>
-                            </Select>
                         </div>
                     </CardContent>
                 </Card>

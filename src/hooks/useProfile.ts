@@ -96,12 +96,19 @@ export function useProfile() {
                 }
             }
 
-            // Validate website URL if provided
-            if (updates.website !== undefined && updates.website) {
+            // Validate website URL if provided and not empty
+            if (updates.website !== undefined && updates.website && updates.website.trim() !== '') {
                 try {
-                    new URL(updates.website)
-                } catch {
-                    throw new Error('Please enter a valid URL')
+                    // Add protocol if missing
+                    let urlToValidate = updates.website.trim()
+                    if (!urlToValidate.startsWith('http://') && !urlToValidate.startsWith('https://')) {
+                        urlToValidate = `https://${urlToValidate}`
+                    }
+                    new URL(urlToValidate)
+                } catch (error) {
+                    console.error('URL validation error:', error)
+                    console.error('Invalid URL:', updates.website)
+                    throw new Error('Please enter a valid URL (e.g., example.com or https://example.com)')
                 }
             }
 
