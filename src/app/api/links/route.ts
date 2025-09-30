@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
             console.error('Database error in POST /api/links:', error)
 
             // Handle specific database errors
-            if (error.code === '23505' && error.constraint === 'links_shortcode_unique') {
+            if (error.code === '23505' && error.message?.includes('shortcode_unique')) {
                 console.log('Duplicate short code detected by database constraint')
                 return NextResponse.json(
                     { error: 'Short code already exists. Please choose a different one.' },
