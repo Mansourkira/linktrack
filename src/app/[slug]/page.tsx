@@ -7,14 +7,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     try {
         const supabase = await createSupabaseServerClient()
-        const { data: link } = await supabase
+        const { data: link, error } = await supabase
             .from('links')
             .select('originalUrl, isPasswordProtected')
             .eq('shortCode', slug)
             .eq('isActive', true)
-            .single()
+            .maybeSingle()
 
-        if (link) {
+        if (link && !error) {
             if (link.isPasswordProtected) {
                 return {
                     title: `Protected Link - ${slug}`,
@@ -56,43 +56,12 @@ export default async function RedirectPage({ params }: PageProps) {
             .select('*')
             .eq('shortCode', slug)  // Using camelCase as per your database
             .eq('isActive', true)   // Using camelCase as per your database
-            .single()
+            .maybeSingle()
 
         console.log('📊 Database query result:', { link, error: dbError })
 
         if (dbError) {
             console.error('❌ Database error:', dbError)
-
-            // Check if it's a "no rows returned" error
-            if (dbError.code === 'PGRST116') {
-                console.log('🔍 No rows found, checking if link exists without isActive filter...')
-
-                // Try to find the link without the isActive filter to see if it exists
-                const { data: existingLink, error: checkError } = await supabase
-                    .from('links')
-                    .select('shortCode, isActive, originalUrl')
-                    .eq('shortCode', slug)
-                    .single()
-
-                console.log('🔍 Link check result:', { existingLink, error: checkError })
-
-                if (existingLink) {
-                    if (!existingLink.isActive) {
-                        console.log('⚠️ Link exists but is inactive')
-                        return (
-                            <div className="min-h-screen flex items-center justify-center bg-background">
-                                <div className="text-center space-y-4">
-                                    <h1 className="text-2xl font-semibold text-destructive">Link Inactive</h1>
-                                    <p className="text-muted-foreground">
-                                        The link <code className="bg-muted px-2 py-1 rounded">/{slug}</code> exists but is currently inactive.
-                                    </p>
-                                </div>
-                            </div>
-                        )
-                    }
-                }
-            }
-
             return (
                 <div className="min-h-screen flex items-center justify-center bg-background">
                     <div className="text-center space-y-4">

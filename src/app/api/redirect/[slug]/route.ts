@@ -40,25 +40,36 @@ export async function GET(
             .eq('shortCode', slug)  // Using camelCase as per your database
             //   .eq('domainId', domainId)
             .eq('isActive', true)   // Using camelCase as per your database
-            .single()
+            .maybeSingle()
 
-        if (error || !link) {
+        if (error) {
+            console.error('Database error looking up link:', error)
+            return NextResponse.redirect(new URL('/404', request.url))
+        }
+
+        if (!link) {
             // Try fallback to primary domain (domainId IS NULL)
             if (domainId !== null) {
-                const { data: fallbackLink } = await supabase
+                const { data: fallbackLink, error: fallbackError } = await supabase
                     .from('links')
                     .select('*')
                     .eq('shortCode', slug)  // Using camelCase as per your database
                     // .is('domainId', null)
                     .eq('isActive', true)   // Using camelCase as per your database
-                    .single()
+                    .maybeSingle()
+
+                if (fallbackError) {
+                    console.error('Database error in fallback lookup:', fallbackError)
+                    return NextResponse.redirect(new URL('/404', request.url))
+                }
 
                 if (fallbackLink) {
                     return await processLink(fallbackLink, request)
                 }
             }
 
-            // Link not found
+            // Link not found - redirect to 404 page
+            console.log('Link not found for slug:', slug)
             return NextResponse.redirect(new URL('/404', request.url))
         }
 
@@ -130,12 +141,17 @@ export async function POST(
             .eq('shortCode', slug)  // Using camelCase as per your database
             // .eq('domainId', domainId)
             .eq('isActive', true)   // Using camelCase as per your database
-            .single()
+            .maybeSingle()
 
         console.log('Link lookup result:', { link: !!link, error })
 
-        if (error || !link) {
-            console.error('Link not found or error:', error)
+        if (error) {
+            console.error('Database error looking up link:', error)
+            return NextResponse.redirect(new URL('/404', request.url))
+        }
+
+        if (!link) {
+            console.log('Link not found for slug:', slug)
             return NextResponse.redirect(new URL('/404', request.url))
         }
 
