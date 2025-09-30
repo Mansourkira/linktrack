@@ -7,40 +7,9 @@ import Link from "next/link"
 import { StatsCards } from "@/modules/analytics/components/stats-cards"
 import { useAnalytics } from "@/modules/analytics"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/components/auth/AuthProvider"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
 
 export default function Page() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
   const { data, isLoading, error, filters, updateFilters, refreshData } = useAnalytics()
-
-  // Redirect to auth if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth')
-    }
-  }, [user, authLoading, router])
-
-  // Show loading while checking auth
-  if (authLoading) {
-    return (
-      <div className="space-y-6 w-full">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <span className="text-lg">Loading...</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Don't render if not authenticated (will redirect)
-  if (!user) {
-    return null
-  }
   if (isLoading) {
     return (
       <div className="space-y-6 w-full">

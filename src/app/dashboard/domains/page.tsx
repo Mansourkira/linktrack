@@ -1,11 +1,11 @@
-import { requireUser } from "@/lib/auth/server"
+import { requireAuth } from "@/lib/auth/server-guard"
 import { ComingSoon } from "@/components/ComingSoon"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { IconArrowLeft } from "@tabler/icons-react"
 
 export default async function DomainsPage() {
-    const user = await requireUser();
+    await requireAuth();
 
     return (
         <div className="space-y-6 p-6 w-full">
