@@ -20,7 +20,7 @@ export const linkSchema = z.object({
 
 // Create link schema
 export const createLinkSchema = linkSchema.extend({
-    password: z.string().min(1).optional()
+    password: z.string().optional()
 }).omit({
     id: true,
     clickCount: true,
