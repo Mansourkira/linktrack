@@ -100,9 +100,9 @@ export function HeroSection() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-xs">L</span>
+                      <span className="text-white font-bold text-xs">10</span>
                     </div>
-                    <span className="font-medium text-sm">linktrack.app/leo</span>
+                    <span className="font-medium text-sm">linktrack.app/Messi</span>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-lg">2,847</div>
@@ -117,12 +117,12 @@ export function HeroSection() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-xs">C</span>
+                      <span className="text-white font-bold text-xs">7</span>
                     </div>
-                    <span className="font-medium text-sm">linktrack.app/chatgpt</span>
+                    <span className="font-medium text-sm">linktrack.app/CR7</span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-lg">1,234</div>
+                    <div className="font-bold text-lg">2,234</div>
                     <div className="text-xs text-muted-foreground">clicks</div>
                   </div>
                 </motion.div>
