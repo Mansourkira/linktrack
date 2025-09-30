@@ -17,17 +17,15 @@ export function PasswordPromptCard({ slug, originalUrl }: PasswordPromptCardProp
     const [password, setPassword] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const [error, setError] = useState<string | null>(null)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!password.trim()) {
-            setError("Password is required")
+            toast.error("Password is required")
             return
         }
 
         setIsSubmitting(true)
-        setError(null)
 
         try {
             const formData = new FormData()
@@ -49,37 +47,43 @@ export function PasswordPromptCard({ slug, originalUrl }: PasswordPromptCardProp
             console.log('Response redirected:', response.redirected)
             console.log('Response URL:', response.url)
 
-            if (response.redirected) {
-                // Password was correct, redirect to the original URL
-                console.log('Password correct, redirecting to:', response.url)
-                window.location.href = response.url
-            } else if (response.ok) {
-                // If response is ok but not redirected, it might be a JSON response
+            if (response.ok) {
+                // Parse the JSON response
                 try {
                     const result = await response.json()
                     console.log('Response result:', result)
-                    if (result?.error) {
-                        setError(result.error)
+
+                    if (result?.success && result?.redirectUrl) {
+                        // Password was correct, redirect to the target URL
+                        console.log('Password correct, redirecting to:', result.redirectUrl)
+                        window.location.href = result.redirectUrl
+                    } else if (result?.error) {
+                        toast.error(result.error)
                     } else {
-                        setError("Invalid password. Please try again.")
+                        toast.error("Invalid password. Please try again.")
                     }
                 } catch (jsonError) {
                     console.error('Error parsing JSON response:', jsonError)
-                    setError("Invalid password. Please try again.")
+                    toast.error("Invalid password. Please try again.")
                 }
             } else {
                 // Handle HTTP error status
                 console.error('HTTP error:', response.status, response.statusText)
                 try {
                     const errorResult = await response.json()
-                    setError(errorResult.error || "An error occurred. Please try again.")
+                    toast.error(errorResult.error || "An error occurred. Please try again.")
                 } catch (jsonError) {
-                    setError(`Server error (${response.status}). Please try again.`)
+                    toast.error(`Server error (${response.status}). Please try again.`)
                 }
             }
         } catch (error) {
             console.error('Error submitting password:', error)
-            setError("Network error. Please check your connection and try again.")
+            console.error('Error details:', {
+                name: error instanceof Error ? error.name : 'Unknown',
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined
+            })
+            toast.error(`Network error: ${error instanceof Error ? error.message : 'Please check your connection and try again.'}`)
         } finally {
             setIsSubmitting(false)
         }
@@ -117,10 +121,7 @@ export function PasswordPromptCard({ slug, originalUrl }: PasswordPromptCardProp
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Enter password"
                                 value={password}
-                                onChange={(e) => {
-                                    setPassword(e.target.value)
-                                    setError(null)
-                                }}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="pr-10 h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 focus:shadow-lg focus:shadow-blue-500/10 transition-all duration-200"
                                 required
                                 autoFocus
@@ -142,15 +143,6 @@ export function PasswordPromptCard({ slug, originalUrl }: PasswordPromptCardProp
                             </Button>
                         </div>
                     </div>
-
-                    {error && (
-                        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                            <IconLock className="h-4 w-4 text-red-500 flex-shrink-0" />
-                            <span className="text-sm text-red-700 dark:text-red-300">
-                                {error}
-                            </span>
-                        </div>
-                    )}
 
                     <Button
                         type="submit"
