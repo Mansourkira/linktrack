@@ -40,6 +40,7 @@ export async function GET(
             .eq('shortCode', slug)  // Using camelCase as per your database
             //   .eq('domainId', domainId)
             .eq('isActive', true)   // Using camelCase as per your database
+            .is('deletedAt', null)  // Exclude soft-deleted links
             .maybeSingle()
 
         if (error) {
@@ -56,6 +57,7 @@ export async function GET(
                     .eq('shortCode', slug)  // Using camelCase as per your database
                     // .is('domainId', null)
                     .eq('isActive', true)   // Using camelCase as per your database
+                    .is('deletedAt', null)  // Exclude soft-deleted links
                     .maybeSingle()
 
                 if (fallbackError) {
@@ -141,6 +143,7 @@ export async function POST(
             .eq('shortCode', slug)  // Using camelCase as per your database
             // .eq('domainId', domainId)
             .eq('isActive', true)   // Using camelCase as per your database
+            .is('deletedAt', null)  // Exclude soft-deleted links
             .maybeSingle()
 
         console.log('Link lookup result:', { link: !!link, error })

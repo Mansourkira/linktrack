@@ -12,6 +12,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             .select('originalUrl, isPasswordProtected')
             .eq('shortCode', slug)
             .eq('isActive', true)
+            .is('deletedAt', null)  // Exclude soft-deleted links
             .maybeSingle()
 
         if (link && !error) {
@@ -56,6 +57,7 @@ export default async function RedirectPage({ params }: PageProps) {
             .select('*')
             .eq('shortCode', slug)  // Using camelCase as per your database
             .eq('isActive', true)   // Using camelCase as per your database
+            .is('deletedAt', null)  // Exclude soft-deleted links
             .maybeSingle()
 
         console.log('📊 Database query result:', { link, error: dbError })
@@ -92,6 +94,46 @@ export default async function RedirectPage({ params }: PageProps) {
         }
 
         console.log('✅ Link found:', link)
+
+        // Check if link is expired
+        if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
+            console.log('⏰ Link has expired')
+            return (
+                <html>
+                    <head>
+                        <meta httpEquiv="refresh" content="0;url=/expired" />
+                        <title>Link Expired</title>
+                    </head>
+                    <body>
+                        <script
+                            dangerouslySetInnerHTML={{
+                                __html: `window.location.href = "/expired";`,
+                            }}
+                        />
+                    </body>
+                </html>
+            )
+        }
+
+        // Check if max clicks reached
+        if (link.maxClicks && link.clickCount >= link.maxClicks) {
+            console.log('🚫 Link has reached maximum clicks')
+            return (
+                <html>
+                    <head>
+                        <meta httpEquiv="refresh" content="0;url=/expired" />
+                        <title>Link Expired</title>
+                    </head>
+                    <body>
+                        <script
+                            dangerouslySetInnerHTML={{
+                                __html: `window.location.href = "/expired";`,
+                            }}
+                        />
+                    </body>
+                </html>
+            )
+        }
 
         // Check if link is password protected
         if (link.isPasswordProtected) {
