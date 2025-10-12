@@ -25,3 +25,4 @@ export async function requireAuth(redirectTo: string = "/auth") {
 
     return user
 }
+

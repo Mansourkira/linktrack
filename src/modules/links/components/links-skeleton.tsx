@@ -107,3 +107,4 @@ interface LinksSkeletonProps {
 export function LinksSkeleton({ view }: LinksSkeletonProps) {
     return view === "table" ? <LinksTableSkeleton /> : <LinksCardSkeleton />
 }
+
