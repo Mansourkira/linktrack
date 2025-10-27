@@ -73,6 +73,9 @@ export const links = pgTable("links", {
   // Profile ID for ownership
   ownerProfileId: uuid("ownerProfileId").notNull().references(() => profiles.id, { onDelete: "cascade" }),
 
+  // Optional custom domain for this link
+  domainId: uuid("domainId").references(() => domains.id, { onDelete: "set null" }),
+
   // short code/slug for the link
   shortCode: varchar("shortCode", { length: 128 }).notNull(),
 
@@ -90,9 +93,10 @@ export const links = pgTable("links", {
   deletedAt: timestamp("deletedAt"),
 
 }, (table) => ({
-  // Unique constraint: shortCode must be unique
-  shortCodeIdx: uniqueIndex("links_shortcode_unique").on(table.shortCode),
+  // Unique constraint: shortCode + domainId combination must be unique
+  shortCodeDomainIdx: uniqueIndex("links_shortcode_domain_unique").on(table.shortCode, table.domainId),
   ownerProfileIdx: index("links_owner_profile_idx").on(table.ownerProfileId),
+  domainIdx: index("links_domain_idx").on(table.domainId),
   activeIdx: index("links_active_idx").on(table.isActive),
   createdIdx: index("links_created_idx").on(table.createdAt),
   deletedAtIdx: index("links_deleted_at_idx").on(table.deletedAt),

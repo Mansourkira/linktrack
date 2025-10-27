@@ -13,8 +13,34 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import type { CreateLinkFormData } from "../types"
 import { getShortUrl } from "../config"
+import { useEffect, useState } from "react"
+
+interface Domain {
+    id: string
+    domain: string
+    status: string
+}
+
+async function fetchVerifiedDomains(): Promise<Domain[]> {
+    try {
+        const response = await fetch('/api/domains')
+        if (!response.ok) return []
+        const { domains } = await response.json()
+        return (domains || []).filter((d: any) => d.status === 'verified')
+    } catch (error) {
+        console.error('Error fetching domains:', error)
+        return []
+    }
+}
 
 interface CreateLinkFormProps {
     isOpen: boolean
@@ -35,14 +61,29 @@ export function CreateLinkForm({
     isSubmitting,
     onReset,
 }: CreateLinkFormProps) {
-    const handleInputChange = (field: keyof CreateLinkFormData, value: string | boolean) => {
-        onFormDataChange(field, value)
+    const [domains, setDomains] = useState<Domain[]>([])
+    const [loadingDomains, setLoadingDomains] = useState(false)
+
+    useEffect(() => {
+        if (isOpen) {
+            setLoadingDomains(true)
+            fetchVerifiedDomains()
+                .then(setDomains)
+                .finally(() => setLoadingDomains(false))
+        }
+    }, [isOpen])
+
+    const handleInputChange = (field: keyof CreateLinkFormData, value: string | boolean | null) => {
+        onFormDataChange(field, value as any)
     }
 
     const handleCancel = () => {
         onOpenChange(false)
         onReset()
     }
+
+    const selectedDomain = domains.find(d => d.id === formData.domainId)
+    const displayDomain = selectedDomain ? selectedDomain.domain : 'linktrack.app'
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -77,6 +118,36 @@ export function CreateLinkForm({
                         </div>
                     </div>
 
+                    {/* Domain Selection */}
+                    <div className="space-y-2">
+                        <Label htmlFor="domain">Domain</Label>
+                        <Select
+                            value={formData.domainId || "default"}
+                            onValueChange={(value) => handleInputChange("domainId", value === "default" ? null : value)}
+                            disabled={loadingDomains}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select domain" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="default">
+                                    linktrack.app (Default)
+                                </SelectItem>
+                                {domains.map((domain) => (
+                                    <SelectItem key={domain.id} value={domain.id}>
+                                        {domain.domain}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <div className="text-xs text-muted-foreground">
+                            {domains.length === 0 && !loadingDomains && (
+                                <span>No custom domains verified. <a href="/dashboard/domains" className="underline">Add one</a></span>
+                            )}
+                            {loadingDomains && <span>Loading domains...</span>}
+                        </div>
+                    </div>
+
                     {/* Short Code - Optional */}
                     <div className="space-y-2">
                         <Label htmlFor="shortCode">Custom Short Code (Optional)</Label>
@@ -87,7 +158,7 @@ export function CreateLinkForm({
                             onChange={(e) => handleInputChange("shortCode", e.target.value)}
                         />
                         <div className="text-xs text-muted-foreground">
-                            Will be available at: {formData.shortCode ? getShortUrl(formData.shortCode) : '[generated]'}
+                            Will be available at: {formData.shortCode ? `https://${displayDomain}/${formData.shortCode}` : '[generated]'}
                         </div>
                     </div>
 

@@ -133,26 +133,6 @@ export function ActivityLogsPage() {
                 hasMore={hasMore}
             />
 
-            {/* Contributing Section */}
-            <Card className="border-dashed">
-                <CardHeader>
-                    <CardTitle className="text-center">🚀 Open Source Project</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center space-y-4">
-                    <p className="text-muted-foreground">
-                        This activity logging system is designed for contributors to enhance and extend.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                        <Badge variant="outline">Real-time logging</Badge>
-                        <Badge variant="outline">Advanced analytics</Badge>
-                        <Badge variant="outline">Export capabilities</Badge>
-                        <Badge variant="outline">Webhook integration</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        Consider adding: Real-time notifications, advanced filtering, log retention policies, and more!
-                    </p>
-                </CardContent>
-            </Card>
         </div>
     )
 }

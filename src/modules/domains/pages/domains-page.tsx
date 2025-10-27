@@ -76,9 +76,65 @@ export function DomainsPage() {
                     </Link>
                     <div>
                         <h1 className="text-2xl font-semibold">Domains</h1>
-                        <p className="text-muted-foreground">Manage your domains</p>
+                        <p className="text-muted-foreground">Manage your custom domains</p>
                     </div>
                 </div>
+
+                {/* Add Domain Button */}
+                <Dialog open={isCreateDialogOpen} onOpenChange={toggleCreateDialog}>
+                    <DialogTrigger asChild>
+                        <Button>
+                            <IconPlus className="mr-2 h-4 w-4" />
+                            Add Domain
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add Custom Domain</DialogTitle>
+                            <DialogDescription>
+                                Add your own domain to use for short links. You'll need to configure DNS settings after adding.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={createDomain} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="domain">Domain Name</Label>
+                                <Input
+                                    id="domain"
+                                    type="text"
+                                    placeholder="go.yourdomain.com"
+                                    value={formData.domain}
+                                    onChange={(e) => updateFormData('domain', e.target.value)}
+                                    required
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Enter your domain without http:// or https://
+                                </p>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="isActive"
+                                    checked={formData.isActive}
+                                    onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                                />
+                                <Label htmlFor="isActive">Set as active after verification</Label>
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => toggleCreateDialog(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isOperationLoading}>
+                                    {isOperationLoading ? 'Adding...' : 'Add Domain'}
+                                </Button>
+                            </div>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
 
 
@@ -235,26 +291,7 @@ export function DomainsPage() {
                 )}
             </div>
 
-            {/* Contributing Section */}
-            <Card className="border-dashed">
-                <CardHeader>
-                    <CardTitle className="text-center">🚀 Open Source Project</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center space-y-4">
-                    <p className="text-muted-foreground">
-                        This domain management system is designed for contributors to enhance and extend.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                        <Badge variant="outline">DNS verification</Badge>
-                        <Badge variant="outline">SSL certificates</Badge>
-                        <Badge variant="outline">Domain transfers</Badge>
-                        <Badge variant="outline">Bulk operations</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        Consider adding: Automatic DNS checking, SSL management, domain health monitoring, and more!
-                    </p>
-                </CardContent>
-            </Card>
+
         </div>
     )
 }

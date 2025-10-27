@@ -19,29 +19,40 @@ export async function GET(
 
         // Check if this is a custom domain or primary domain
         let domainId: string | null = null
+        let isCustomDomain = false
 
         // First, check if host matches a custom domain
-        if (host !== 'linktrack.app' && host !== 'localhost:3000') {
+        if (host !== 'linktrack.app' && host !== 'localhost:3000' && !host.includes('vercel.app')) {
             const { data: domain } = await supabase
                 .from('domains')
-                .select('id')
+                .select('id, status')
                 .eq('domain', host)
+                .eq('status', 'verified')  // Only use verified domains
                 .single()
 
             if (domain) {
                 domainId = domain.id
+                isCustomDomain = true
             }
         }
 
         // Look up the link by slug and domain using correct column names
-        const { data: link, error } = await supabase
+        let query = supabase
             .from('links')
             .select('*')
-            .eq('shortCode', slug)  // Using camelCase as per your database
-            //   .eq('domainId', domainId)
-            .eq('isActive', true)   // Using camelCase as per your database
-            .is('deletedAt', null)  // Exclude soft-deleted links
-            .maybeSingle()
+            .eq('shortCode', slug)
+            .eq('isActive', true)
+            .is('deletedAt', null)
+
+        // If accessing via custom domain, look for links on that domain
+        if (isCustomDomain && domainId) {
+            query = query.eq('domainId', domainId)
+        } else {
+            // If accessing via primary domain, look for links without custom domain
+            query = query.is('domainId', null)
+        }
+
+        const { data: link, error } = await query.maybeSingle()
 
         if (error) {
             console.error('Database error looking up link:', error)
@@ -49,29 +60,8 @@ export async function GET(
         }
 
         if (!link) {
-            // Try fallback to primary domain (domainId IS NULL)
-            if (domainId !== null) {
-                const { data: fallbackLink, error: fallbackError } = await supabase
-                    .from('links')
-                    .select('*')
-                    .eq('shortCode', slug)  // Using camelCase as per your database
-                    // .is('domainId', null)
-                    .eq('isActive', true)   // Using camelCase as per your database
-                    .is('deletedAt', null)  // Exclude soft-deleted links
-                    .maybeSingle()
-
-                if (fallbackError) {
-                    console.error('Database error in fallback lookup:', fallbackError)
-                    return NextResponse.redirect(new URL('/404', request.url))
-                }
-
-                if (fallbackLink) {
-                    return await processLink(fallbackLink, request)
-                }
-            }
-
             // Link not found - redirect to 404 page
-            console.log('Link not found for slug:', slug)
+            console.log('Link not found for slug:', slug, 'on domain:', host)
             return NextResponse.redirect(new URL('/404', request.url))
         }
 
@@ -124,27 +114,36 @@ export async function POST(
 
         // Look up the link
         let domainId: string | null = null
+        let isCustomDomain = false
 
-        if (domain && domain !== 'linktrack.app' && domain !== 'localhost:3000') {
+        if (domain && domain !== 'linktrack.app' && domain !== 'localhost:3000' && !domain.includes('vercel.app')) {
             const { data: domainRecord } = await supabase
                 .from('domains')
-                .select('id')
+                .select('id, status')
                 .eq('domain', domain)
+                .eq('status', 'verified')
                 .single()
 
             if (domainRecord) {
                 domainId = domainRecord.id
+                isCustomDomain = true
             }
         }
 
-        const { data: link, error } = await supabase
+        let query = supabase
             .from('links')
             .select('*')
-            .eq('shortCode', slug)  // Using camelCase as per your database
-            // .eq('domainId', domainId)
-            .eq('isActive', true)   // Using camelCase as per your database
-            .is('deletedAt', null)  // Exclude soft-deleted links
-            .maybeSingle()
+            .eq('shortCode', slug)
+            .eq('isActive', true)
+            .is('deletedAt', null)
+
+        if (isCustomDomain && domainId) {
+            query = query.eq('domainId', domainId)
+        } else {
+            query = query.is('domainId', null)
+        }
+
+        const { data: link, error } = await query.maybeSingle()
 
         console.log('Link lookup result:', { link: !!link, error })
 

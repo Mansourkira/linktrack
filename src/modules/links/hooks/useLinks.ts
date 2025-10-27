@@ -15,6 +15,7 @@ export function useLinks() {
     const [formData, setFormData] = useState<CreateLinkFormData>({
         originalUrl: "",
         shortCode: "",
+        domainId: null,
         isPasswordProtected: false,
         password: "",
         isActive: true,
@@ -80,6 +81,7 @@ export function useLinks() {
         setFormData({
             originalUrl: "",
             shortCode: "",
+            domainId: null,
             isPasswordProtected: false,
             password: "",
             isActive: true,
@@ -108,6 +110,7 @@ export function useLinks() {
             const requestBody: any = {
                 shortCode,
                 originalUrl: formData.originalUrl,
+                domainId: formData.domainId || null,
                 isPasswordProtected: formData.isPasswordProtected,
                 isActive: formData.isActive
             }

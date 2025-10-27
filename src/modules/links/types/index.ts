@@ -2,6 +2,7 @@ export interface Link {
     id: string
     shortCode: string
     originalUrl: string
+    domainId?: string | null
     isPasswordProtected: boolean
     isActive: boolean
     clickCount: number
@@ -12,6 +13,7 @@ export interface Link {
 export interface CreateLinkFormData {
     originalUrl: string
     shortCode: string
+    domainId?: string | null
     isPasswordProtected: boolean
     password?: string
     isActive: boolean

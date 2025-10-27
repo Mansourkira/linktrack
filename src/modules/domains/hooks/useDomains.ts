@@ -24,67 +24,51 @@ export function useDomains() {
         try {
             setState(prev => ({ ...prev, isLoading: true, error: null }))
 
-            // Get current user
-            const supabase = createSupabaseBrowserClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                throw new Error('User not authenticated')
+            // Fetch domains from API
+            const response = await fetch('/api/domains')
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch domains')
             }
 
-            // For now, we'll use mock data since domains table doesn't exist yet
-            // Contributors can implement the actual database integration
-            const mockDomains: Domain[] = [
-                {
-                    id: '1',
-                    domain: 'example.com',
-                    isVerified: true,
-                    isActive: true,
-                    verificationStatus: 'verified',
-                    dnsRecords: [
-                        {
-                            type: 'CNAME',
-                            name: '@',
-                            value: 'linktrack.app',
-                            ttl: 3600,
-                            isVerified: true
-                        }
-                    ],
-                    linkedLinks: [
-                        {
-                            id: '1',
-                            shortCode: 'demo',
-                            originalUrl: 'https://example.com/demo',
-                            customDomain: 'example.com',
-                            isActive: true
-                        }
-                    ],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    ownerProfileId: user.id
-                },
-                {
-                    id: '2',
-                    domain: 'mylinks.com',
-                    isVerified: false,
-                    isActive: false,
-                    verificationStatus: 'pending',
-                    dnsRecords: [
-                        {
-                            type: 'A',
-                            name: '@',
-                            value: '192.168.1.1',
-                            ttl: 3600,
-                            isVerified: false
-                        }
-                    ],
-                    linkedLinks: [],
-                    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                    updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                    ownerProfileId: user.id
-                }
-            ]
+            const { domains: fetchedDomains } = await response.json()
 
-            setState(prev => ({ ...prev, domains: mockDomains }))
+            // Transform domains to match our Domain interface
+            const transformedDomains: Domain[] = await Promise.all(
+                (fetchedDomains || []).map(async (d: any) => {
+                    // Fetch linked links for this domain
+                    const supabase = createSupabaseBrowserClient()
+                    const { data: links } = await supabase
+                        .from('links')
+                        .select('id, shortCode, originalUrl, isActive')
+                        .eq('domainId', d.id)
+                        .eq('isActive', true)
+                        .is('deletedAt', null)
+
+                    return {
+                        id: d.id,
+                        domain: d.domain,
+                        isVerified: d.status === 'verified',
+                        isActive: d.status === 'verified',
+                        verificationStatus: d.status === 'verified' ? 'verified' as const :
+                            d.status === 'failed' ? 'failed' as const :
+                                'pending' as const,
+                        dnsRecords: generateDefaultDNSRecords(d.domain),
+                        linkedLinks: (links || []).map(link => ({
+                            id: link.id,
+                            shortCode: link.shortCode,
+                            originalUrl: link.originalUrl,
+                            customDomain: d.domain,
+                            isActive: link.isActive
+                        })),
+                        createdAt: d.created_at || d.createdAt,  // Handle both snake_case and camelCase
+                        updatedAt: d.created_at || d.createdAt,
+                        ownerProfileId: d.user_id || ''  // Using user_id (will be workspace_id when workspaces are implemented)
+                    }
+                })
+            )
+
+            setState(prev => ({ ...prev, domains: transformedDomains }))
         } catch (error) {
             console.error('Error fetching domains:', error)
             setState(prev => ({
@@ -107,115 +91,141 @@ export function useDomains() {
         try {
             setState(prev => ({ ...prev, isOperationLoading: true }))
 
-            // Get current user
-            const supabase = createSupabaseBrowserClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                toast.error("You must be logged in to create domains")
-                return
-            }
-
             // Validate domain format
             if (!isValidDomain(formData.domain)) {
                 toast.error("Please enter a valid domain")
                 return
             }
 
-            // Check if domain already exists
-            const existingDomain = state.domains.find(d => d.domain === formData.domain)
-            if (existingDomain) {
-                toast.error("Domain already exists")
-                return
+            // Create domain via API
+            const response = await fetch('/api/domains', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    domain: formData.domain
+                })
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to create domain')
             }
 
-            // Create new domain (mock implementation)
-            const newDomain: Domain = {
-                id: Date.now().toString(),
-                domain: formData.domain,
+            const { domain: newDomain } = await response.json()
+
+            // Add to local state
+            const transformedDomain: Domain = {
+                id: newDomain.id,
+                domain: newDomain.domain,
                 isVerified: false,
-                isActive: formData.isActive,
+                isActive: false,
                 verificationStatus: 'pending',
-                dnsRecords: generateDefaultDNSRecords(formData.domain),
+                dnsRecords: generateDefaultDNSRecords(newDomain.domain),
                 linkedLinks: [],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                ownerProfileId: user.id
+                createdAt: newDomain.createdAt,
+                updatedAt: newDomain.createdAt,
+                ownerProfileId: ''
             }
 
             setState(prev => ({
                 ...prev,
-                domains: [...prev.domains, newDomain],
+                domains: [...prev.domains, transformedDomain],
                 isCreateDialogOpen: false
             }))
 
             resetForm()
-            toast.success("Domain created successfully! Please verify your DNS settings.")
+            toast.success("Domain created successfully! Please configure your DNS settings and verify.")
         } catch (err) {
             console.error('Error creating domain:', err)
-            toast.error('Failed to create domain')
+            toast.error(err instanceof Error ? err.message : 'Failed to create domain')
         } finally {
             setState(prev => ({ ...prev, isOperationLoading: false }))
         }
-    }, [formData, state.domains])
+    }, [formData])
 
     const verifyDomain = useCallback(async (domainId: string): Promise<DomainVerificationResult> => {
         try {
             setState(prev => ({ ...prev, isOperationLoading: true }))
 
-            // Mock verification process
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            toast.info("Verifying DNS records...")
 
-            const domain = state.domains.find(d => d.id === domainId)
-            if (!domain) {
-                throw new Error('Domain not found')
+            // Call verification API
+            const response = await fetch(`/api/domains/${domainId}/verify`, {
+                method: 'POST'
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to verify domain')
             }
 
-            // Simulate verification (contributors can implement real DNS checking)
-            const isVerified = Math.random() > 0.3 // 70% success rate for demo
-            const verificationResult: DomainVerificationResult = {
-                isVerified,
-                errors: isVerified ? [] : ['DNS records not found or incorrect'],
-                warnings: [],
-                dnsRecords: domain.dnsRecords.map(record => ({
-                    ...record,
-                    isVerified: isVerified
-                }))
-            }
+            const { domain: updatedDomain, verification } = await response.json()
 
-            // Update domain status
+            // Update domain status in local state
             setState(prev => ({
                 ...prev,
                 domains: prev.domains.map(d =>
                     d.id === domainId
                         ? {
                             ...d,
-                            isVerified: isVerified,
-                            verificationStatus: isVerified ? 'verified' : 'failed',
-                            dnsRecords: verificationResult.dnsRecords,
+                            isVerified: verification.isVerified,
+                            isActive: verification.isVerified,
+                            verificationStatus: verification.isVerified ? 'verified' : 'failed',
+                            dnsRecords: verification.records.map((r: any) => ({
+                                type: r.type,
+                                name: r.name,
+                                value: r.value,
+                                ttl: 3600,
+                                isVerified: r.found
+                            })),
                             updatedAt: new Date().toISOString()
                         }
                         : d
                 )
             }))
 
+            if (verification.isVerified) {
+                toast.success("Domain verified successfully!")
+            } else {
+                toast.error("Domain verification failed. Please check your DNS settings.")
+            }
+
+            const verificationResult: DomainVerificationResult = {
+                isVerified: verification.isVerified,
+                errors: verification.errors || [],
+                warnings: verification.warnings || [],
+                dnsRecords: verification.records.map((r: any) => ({
+                    type: r.type,
+                    name: r.name,
+                    value: r.value,
+                    ttl: 3600,
+                    isVerified: r.found
+                }))
+            }
+
             return verificationResult
         } catch (error) {
             console.error('Error verifying domain:', error)
+            toast.error('Failed to verify domain')
             throw error
         } finally {
             setState(prev => ({ ...prev, isOperationLoading: false }))
         }
-    }, [state.domains])
+    }, [])
 
     const deleteDomain = useCallback(async (domainId: string) => {
         try {
-            const supabase = createSupabaseBrowserClient()
-            const { error } = await supabase
-                .from('domains')
-                .delete()
-                .eq('id', domainId)
+            setState(prev => ({ ...prev, isOperationLoading: true }))
 
-            if (error) throw error
+            const response = await fetch(`/api/domains/${domainId}`, {
+                method: 'DELETE'
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to delete domain')
+            }
 
             setState(prev => ({
                 ...prev,
@@ -225,7 +235,9 @@ export function useDomains() {
             toast.success('Domain deleted successfully')
         } catch (err) {
             console.error('Error deleting domain:', err)
-            toast.error('Failed to delete domain')
+            toast.error(err instanceof Error ? err.message : 'Failed to delete domain')
+        } finally {
+            setState(prev => ({ ...prev, isOperationLoading: false }))
         }
     }, [])
 
