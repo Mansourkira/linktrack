@@ -58,3 +58,4 @@ CREATE INDEX IF NOT EXISTS domains_user_idx ON domains(user_id);
 -- WHERE table_name = 'domains';
 
 
+

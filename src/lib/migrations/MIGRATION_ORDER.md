@@ -90,3 +90,4 @@ WHERE table_name = 'links' AND column_name IN ('domainId', 'shortCode');
 ```
 
 
+
