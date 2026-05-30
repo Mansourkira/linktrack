@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import type { CreateLinkFormData } from "../types"
-import { getShortUrl } from "../config"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 interface Domain {
@@ -142,7 +142,7 @@ export function CreateLinkForm({
                         </Select>
                         <div className="text-xs text-muted-foreground">
                             {domains.length === 0 && !loadingDomains && (
-                                <span>No custom domains verified. <a href="/dashboard/domains" className="underline">Add one</a></span>
+                                <span>No custom domains verified. <Link href="/dashboard/domains" className="underline">Add one</Link></span>
                             )}
                             {loadingDomains && <span>Loading domains...</span>}
                         </div>

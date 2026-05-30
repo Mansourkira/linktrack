@@ -15,6 +15,7 @@ const eslintConfig = [
     rules: {
       // Image optimization warnings
       "@next/next/no-img-element": "warn",
+      "@next/next/no-html-link-for-pages": "warn",
 
       // Unused variables - more lenient
       "@typescript-eslint/no-unused-vars": [

@@ -4,11 +4,11 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 // PATCH /api/workspaces/[workspaceId]/members/[profileId] - Update member role
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { workspaceId: string; profileId: string } }
+    { params }: { params: Promise<{ workspaceId: string; profileId: string }> }
 ) {
     try {
         const supabase = await createSupabaseServerClient()
-        const { workspaceId, profileId } = params
+        const { workspaceId, profileId } = await params
 
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -103,9 +103,9 @@ export async function PATCH(
 
         // Prevent removing the last owner
         if (targetMember.role === 'owner' && role !== 'owner') {
-            const { data: ownerCount } = await supabase
+            const { count: ownerCount } = await supabase
                 .from('workspace_members')
-                .select('profile_id', { count: 'exact', head: true })
+                .select('*', { count: 'exact', head: true })
                 .eq('workspace_id', workspaceId)
                 .eq('role', 'owner')
 
@@ -146,6 +146,10 @@ export async function PATCH(
             )
         }
 
+        const memberProfile = Array.isArray(updatedMember.profiles)
+            ? updatedMember.profiles[0]
+            : updatedMember.profiles
+
         return NextResponse.json({
             member: {
                 profileId: updatedMember.profile_id,
@@ -153,11 +157,11 @@ export async function PATCH(
                 role: updatedMember.role,
                 joinedAt: updatedMember.joined_at,
                 profile: {
-                    id: updatedMember.profiles.id,
-                    username: updatedMember.profiles.username,
-                    email: updatedMember.profiles.email,
-                    fullName: updatedMember.profiles.full_name,
-                    avatarUrl: updatedMember.profiles.avatar_url,
+                    id: memberProfile.id,
+                    username: memberProfile.username,
+                    email: memberProfile.email,
+                    fullName: memberProfile.full_name,
+                    avatarUrl: memberProfile.avatar_url,
                 },
             },
         })
@@ -173,11 +177,11 @@ export async function PATCH(
 // DELETE /api/workspaces/[workspaceId]/members/[profileId] - Remove member from workspace
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { workspaceId: string; profileId: string } }
+    { params }: { params: Promise<{ workspaceId: string; profileId: string }> }
 ) {
     try {
         const supabase = await createSupabaseServerClient()
-        const { workspaceId, profileId } = params
+        const { workspaceId, profileId } = await params
 
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -232,9 +236,9 @@ export async function DELETE(
 
         // Prevent removing the last owner
         if (targetMember.role === 'owner') {
-            const { data: ownerCount } = await supabase
+            const { count: ownerCount } = await supabase
                 .from('workspace_members')
-                .select('profile_id', { count: 'exact', head: true })
+                .select('*', { count: 'exact', head: true })
                 .eq('workspace_id', workspaceId)
                 .eq('role', 'owner')
 

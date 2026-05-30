@@ -4,11 +4,11 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 // GET /api/workspaces/[workspaceId]/members - Get workspace members
 export async function GET(
     request: NextRequest,
-    { params }: { params: { workspaceId: string } }
+    { params }: { params: Promise<{ workspaceId: string }> }
 ) {
     try {
         const supabase = await createSupabaseServerClient()
-        const { workspaceId } = params
+        const { workspaceId } = await params
 
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -94,11 +94,11 @@ export async function GET(
 // POST /api/workspaces/[workspaceId]/members - Add a member to workspace
 export async function POST(
     request: NextRequest,
-    { params }: { params: { workspaceId: string } }
+    { params }: { params: Promise<{ workspaceId: string }> }
 ) {
     try {
         const supabase = await createSupabaseServerClient()
-        const { workspaceId } = params
+        const { workspaceId } = await params
 
         // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -221,6 +221,10 @@ export async function POST(
             )
         }
 
+        const memberProfile = Array.isArray(newMember.profiles)
+            ? newMember.profiles[0]
+            : newMember.profiles
+
         return NextResponse.json({
             member: {
                 profileId: newMember.profile_id,
@@ -228,11 +232,11 @@ export async function POST(
                 role: newMember.role,
                 joinedAt: newMember.joined_at,
                 profile: {
-                    id: newMember.profiles.id,
-                    username: newMember.profiles.username,
-                    email: newMember.profiles.email,
-                    fullName: newMember.profiles.full_name,
-                    avatarUrl: newMember.profiles.avatar_url,
+                    id: memberProfile.id,
+                    username: memberProfile.username,
+                    email: memberProfile.email,
+                    fullName: memberProfile.full_name,
+                    avatarUrl: memberProfile.avatar_url,
                 },
             },
         }, { status: 201 })
