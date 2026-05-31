@@ -1,10 +1,10 @@
 // src/lib/config.ts
 
 export const config = {
-  // Database configuration
-  database: {
-    url: process.env.DATABASE_URL || 'postgresql://postgres.vbxvtexvxtvewuuspdwo:123456789Azertyuiop12wx@aws-0-eu-north-1.pooler.supabase.com:6543/postgres"',
-  },
+  // Database configuration (disabled for Cloudflare bundle test — app uses Supabase HTTP)
+  // database: {
+  //   url: process.env.DATABASE_URL || 'postgresql://...',
+  // },
 
   // Feature flags
   features: {

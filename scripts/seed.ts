@@ -1,3 +1,12 @@
+/**
+ * TEMPORARILY DISABLED for Cloudflare Worker bundle-size test.
+ * Restore from git history when re-enabling Drizzle/pg seeding.
+ */
+
+console.log("DB seed skipped (Drizzle/pg disabled for Cloudflare bundle test).");
+process.exit(0);
+
+/*
 import { getDb, closeConnection } from "./db";
 import { plans, profiles, workspaces } from "../src/lib/schemas/schema";
 
@@ -63,3 +72,4 @@ seed()
     console.error(error);
     process.exit(1);
   });
+*/

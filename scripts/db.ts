@@ -1,8 +1,9 @@
 /**
- * Node.js-only database client for local CLI scripts (seed, migrations).
- * Production on Cloudflare Workers uses Supabase over HTTP — do not import
- * this module from Next.js app routes, layouts, or server components.
+ * TEMPORARILY DISABLED for Cloudflare Worker bundle-size test.
+ * Restore from git history when re-enabling Drizzle/pg local scripts.
  */
+
+/*
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "../src/lib/schemas/schema";
@@ -42,3 +43,10 @@ export async function closeConnection(): Promise<void> {
     dbInstance = undefined;
   }
 }
+*/
+
+export function getDb(): never {
+  throw new Error("Database client disabled (Cloudflare bundle test).");
+}
+
+export async function closeConnection(): Promise<void> {}

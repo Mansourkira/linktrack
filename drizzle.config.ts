@@ -1,3 +1,9 @@
+/**
+ * TEMPORARILY DISABLED for Cloudflare Worker bundle-size test.
+ * Restore from git history when re-enabling Drizzle Kit.
+ */
+
+/*
 import { defineConfig } from "drizzle-kit";
 
 import * as dotenv from "dotenv";
@@ -11,13 +17,13 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
-  // Migration configuration
   migrations: {
     table: "drizzle_migrations",
     schema: "public",
   },
-  // Verbose logging for development
   verbose: true,
-  // Strict mode for better type safety
   strict: true,
 });
+*/
+
+export default {};
