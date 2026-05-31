@@ -1,6 +1,10 @@
 # Copy to .dev.vars for local Wrangler preview (not committed)
 NEXTJS_ENV=development
 
-# Supabase (same as .env.local)
+# Supabase — required at BUILD and RUNTIME on Cloudflare Workers
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# Cloudflare dashboard:
+# 1. Workers Builds → Build variables and secrets (for next build)
+# 2. Worker → Settings → Variables and secrets (for runtime / middleware)
