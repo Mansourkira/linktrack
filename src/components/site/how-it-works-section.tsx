@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { ArrowRight, Link, BarChart3 } from "lucide-react"
+import { ArrowRight, Link, BarChart3 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function HowItWorksSection() {
   const steps = [
     {
       icon: Link,
       title: "Paste Your Long URL",
-      description: "Simply paste any long URL into our shortener tool and customize your short code",
+      description:
+        "Simply paste any long URL into our shortener tool and customize your short code",
     },
     {
       icon: ArrowRight,
@@ -18,9 +19,10 @@ export function HowItWorksSection() {
     {
       icon: BarChart3,
       title: "Track Performance",
-      description: "Monitor clicks, locations, devices, and referrers with detailed analytics",
+      description:
+        "Monitor clicks, locations, devices, and referrers with detailed analytics",
     },
-  ]
+  ];
 
   return (
     <section className="py-24 bg-muted/30">
@@ -34,23 +36,22 @@ export function HowItWorksSection() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {steps.map((step, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="text-center"
+              className={cn(
+                "text-center animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-500"
+              )}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <step.icon className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
               <p className="text-muted-foreground">{step.description}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

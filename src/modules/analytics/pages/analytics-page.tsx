@@ -14,7 +14,7 @@ import {
 import { useAnalytics } from "../hooks/useAnalytics"
 import { StatsCards } from "../components/stats-cards"
 import { TopPerformingLinks } from "../components/top-performing-links"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { ChartAreaInteractive } from "@/components/lazy/chart-area-interactive"
 import Link from "next/link"
 
 export function AnalyticsPage() {

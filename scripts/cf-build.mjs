@@ -14,6 +14,7 @@ if (platform() === "linux") {
 }
 
 run("opennextjs-cloudflare build");
+run("node scripts/report-worker-size.mjs");
 
 if (platform() === "linux") {
   try {

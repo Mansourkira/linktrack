@@ -1,5 +1,5 @@
 "use client"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { ChartAreaInteractive } from "@/components/lazy/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { CrudCard } from "@/components/ui/crud-card"
 import { IconPlus, IconLink, IconChartBar, IconSettings } from "@tabler/icons-react"

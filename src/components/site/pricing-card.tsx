@@ -1,21 +1,20 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Check } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface PricingCardProps {
-  name: string
-  price: string
-  description: string
-  features: string[]
-  popular?: boolean
-  buttonText: string
-  buttonVariant?: "default" | "outline"
-  delay?: number
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  popular?: boolean;
+  buttonText: string;
+  buttonVariant?: "default" | "outline";
+  delay?: number;
 }
 
 export function PricingCard({
@@ -29,17 +28,16 @@ export function PricingCard({
   delay = 0,
 }: PricingCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.5, delay }}
-      className="h-full"
+    <div
+      className={cn(
+        "h-full animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-500"
+      )}
+      style={{ animationDelay: `${delay}ms` }}
     >
       <Card
         className={cn(
           "relative h-full transition-all duration-300 hover:shadow-lg",
-          popular && "border-primary shadow-lg scale-105",
+          popular && "border-primary shadow-lg scale-105"
         )}
       >
         {popular && (
@@ -51,7 +49,9 @@ export function PricingCard({
           <h3 className="text-xl font-bold">{name}</h3>
           <div className="mt-2">
             <span className="text-3xl font-bold">{price}</span>
-            {price !== "Free" && <span className="text-muted-foreground">/month</span>}
+            {price !== "Free" && (
+              <span className="text-muted-foreground">/month</span>
+            )}
           </div>
           <p className="text-sm text-muted-foreground mt-2">{description}</p>
         </CardHeader>
@@ -71,6 +71,6 @@ export function PricingCard({
           </Button>
         </CardFooter>
       </Card>
-    </motion.div>
-  )
+    </div>
+  );
 }
