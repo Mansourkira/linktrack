@@ -19,8 +19,9 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const router = useRouter()
-  const supabase = createSupabaseBrowserClient()
   const { user, loading: authCheckLoading } = useAuth()
+
+  const getSupabase = () => createSupabaseBrowserClient()
 
   // Check if user is already authenticated and redirect to dashboard
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function Page() {
     try {
       setLoading(true)
       setError(null)
+      const supabase = getSupabase()
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         setError(error.message)
@@ -85,6 +87,7 @@ export default function Page() {
     try {
       setError(null)
       setLoading(true)
+      const supabase = getSupabase()
       const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) {
         setError(error.message)

@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 
 export function useLogout() {
     const router = useRouter();
-    const supabase = createSupabaseBrowserClient();
     return async () => {
+        const supabase = createSupabaseBrowserClient();
         await supabase.auth.signOut();
         router.replace('/auth');
     };

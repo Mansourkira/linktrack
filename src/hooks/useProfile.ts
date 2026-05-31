@@ -23,8 +23,6 @@ export function useProfile() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const supabase = createSupabaseBrowserClient()
-
     const fetchProfile = async () => {
         if (!user) {
             setProfile(null)
@@ -33,6 +31,7 @@ export function useProfile() {
         }
 
         try {
+            const supabase = createSupabaseBrowserClient()
             setLoading(true)
             setError(null)
 
@@ -84,6 +83,7 @@ export function useProfile() {
         }
 
         try {
+            const supabase = createSupabaseBrowserClient()
             setError(null)
 
             // Validate username if provided
@@ -169,6 +169,7 @@ export function useProfile() {
         }
 
         try {
+            const supabase = createSupabaseBrowserClient()
             setError(null)
 
             // Validate file
@@ -241,6 +242,7 @@ export function useProfile() {
         }
 
         try {
+            const supabase = createSupabaseBrowserClient()
             setError(null)
 
             // Remove from storage if it's a custom upload
