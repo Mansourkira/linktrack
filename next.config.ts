@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverMinification: true,
+  },
   // Keep build-only / Node-only packages out of the Cloudflare Worker bundle.
   serverExternalPackages: [
     "pg",
@@ -24,10 +27,14 @@ const nextConfig: NextConfig = {
       "node_modules/@tailwindcss/**/*",
       "node_modules/webpack/**/*",
       "node_modules/terser/**/*",
+      "**/*.md",
+      "**/*.map",
     ],
   },
 };
 
 export default nextConfig;
 
-initOpenNextCloudflareForDev();
+if (process.env.NODE_ENV === "development") {
+  initOpenNextCloudflareForDev();
+}
