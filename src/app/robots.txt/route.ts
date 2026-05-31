@@ -9,7 +9,7 @@ Disallow: /dashboard/
 User-agent: Mediapartners-Google
 Allow: /
 
-Sitemap: https://www.linktrack.app/sitemap.xml`
+Sitemap: https://linktrack.app/sitemap.xml`
 
     return new NextResponse(robotsContent, {
         status: 200,

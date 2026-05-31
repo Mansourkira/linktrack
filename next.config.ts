@@ -34,18 +34,10 @@ const nextConfig: NextConfig = {
       "**/*.map",
     ],
   },
+  // Do NOT use splitChunks on the server bundle — OpenNext resolves chunks by ID
+  // at build time; custom splitting causes "Unknown chunk N" runtime errors on Workers.
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.optimization = {
-        ...config.optimization,
-        minimize: true,
-        splitChunks: {
-          chunks: "all",
-          maxInitialRequests: 25,
-          minSize: 20000,
-        },
-      };
-
       const externals = config.externals ?? [];
       config.externals = [
         ...(Array.isArray(externals) ? externals : [externals]),
