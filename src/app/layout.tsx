@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { AuthProvider } from "@/components/auth/AuthProvider"
+import { SupabaseEnvScript } from "@/components/supabase-env-script"
 import "./globals.css"
 
 const inter = Inter({
@@ -60,6 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        <SupabaseEnvScript />
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2878731516544158"
