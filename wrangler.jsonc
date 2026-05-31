@@ -17,9 +17,6 @@
       "service": "linktrack"
     }
   ],
-  "images": {
-    "binding": "IMAGES"
-  },
   "observability": {
     "enabled": true
   }

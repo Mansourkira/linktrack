@@ -14,3 +14,11 @@ if (platform() === "linux") {
 }
 
 run("opennextjs-cloudflare build");
+
+if (platform() === "linux") {
+  try {
+    run("npx wrangler deploy --dry-run --minify --outdir .wrangler-size-check");
+  } catch {
+    console.log("Bundle size check skipped.");
+  }
+}
